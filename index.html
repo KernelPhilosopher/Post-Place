@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <!-- Metadatos básicos del documento -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Metadatos para SEO (Optimización para motores de búsqueda) -->
+    <meta
+      name="description"
+      content="Post-Place: El lugar perfecto para postear mensajes sin miedo al éxito. Únete a nuestra comunidad y comparte tus ideas."
+    />
+    <meta name="keywords" content="blog, posts, comunidad, social, mensajes" />
+    <meta name="author" content="Post-Place Team" />
+
+    <!-- Título que se mostrará en la pestaña del navegador -->
+    <title>Post-Place | Tu Comunidad de Ideas</title>
+
+    <!-- Conexión con Google Fonts para la tipografía 'Poppins' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Enlace a la hoja de estilos principal de la página de inicio -->
+    <link rel="stylesheet" href="Frontend/CSS/index.css" />
+
+    <!-- Favicon (icono de la pestaña del navegador) -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  </head>
+  <body>
+    <!-- Encabezado del sitio web, contiene el logo y la navegación principal -->
+    <header class="site-header">
+      <div class="container">
+        <!-- Logo del sitio, que también es un enlace a la sección de inicio -->
+        <a href="#inicio" class="logo">Post-Place</a>
+        <!-- Navegación principal del sitio -->
+        <nav class="main-nav">
+          <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#caracteristicas">Características</a></li>
+            <li><a href="#sobre-nosotros">Sobre Nosotros</a></li>
+            <li>
+              <a href="https://paypal.me/KernelPhilosopher">Donaciones</a>
+            </li>
+          </ul>
+        </nav>
+        <!-- Botón que dirige a la página de inicio de sesión y registro -->
+        <a href="Frontend/HTML/login-register.html" class="btn btn-primary"
+          >Iniciar Sesión</a
+        >
+      </div>
+    </header>
+
+    <!-- Contenido principal de la página -->
+    <main>
+      <!-- Sección 'Hero' o de bienvenida, ocupa toda la pantalla inicial -->
+      <section id="inicio" class="hero">
+        <div class="container hero-content">
+          <h1 class="hero-title">
+            El lugar perfecto para compartir tus ideas sin miedo al éxito.
+          </h1>
+          <p class="hero-subtitle">
+            ¡Bienvenido a Post-Place! Aquí puedes publicar, editar y eliminar
+            tus posts con total libertad. ¿Aún no eres parte de nuestra
+            comunidad? ¡Únete ahora!
+          </p>
+          <!-- Botón de llamada a la acción principal -->
+          <a
+            href="Frontend/HTML/login-register.html"
+            class="btn btn-primary btn-lg"
+            >¡Regístrate Gratis!</a
+          >
+        </div>
+      </section>
+
+      <!-- Sección que describe las características principales de la plataforma -->
+      <section id="caracteristicas" class="features">
+        <div class="container">
+          <h2 class="section-title">¿Por qué elegir Post-Place?</h2>
+          <!-- Rejilla (grid) para alinear las tarjetas de características -->
+          <div class="features-grid">
+            <!-- Tarjeta individual para una característica -->
+            <div class="feature-card">
+              <div class="feature-icon">
+                <!-- Icono SVG representativo -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M12 22a6 6 0 0 0 6-6v-7a6 6 0 0 0-12 0v7a6 6 0 0 0 6 6Z"
+                  />
+                  <path
+                    d="M12 15a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v7a3 3 0 0 0 3 3Z"
+                  />
+                </svg>
+              </div>
+              <h3 class="feature-title">Libertad Total</h3>
+              <p class="feature-description">
+                Crea, edita y gestiona tus publicaciones sin restricciones. Tu
+                contenido, tus reglas.
+              </p>
+            </div>
+            <!-- Segunda tarjeta de característica -->
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <h3 class="feature-title">Comunidad Activa</h3>
+              <p class="feature-description">
+                Conecta con otros usuarios, debate sobre temas de interés y haz
+                crecer tu red.
+              </p>
+            </div>
+            <!-- Tercera tarjeta de característica -->
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="3" y1="9" x2="21" y2="9"></line>
+                  <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+              </div>
+              <h3 class="feature-title">Interfaz Intuitiva</h3>
+              <p class="feature-description">
+                Diseñamos una experiencia de usuario sencilla y agradable para
+                que te centres en lo importante: crear.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección 'Sobre Nosotros', para presentar al equipo de desarrollo -->
+      <section id="sobre-nosotros" class="about-us">
+        <div class="container">
+          <h2 class="section-title">Conoce al Equipo</h2>
+          <div class="team-grid">
+            <!-- Tarjeta para un miembro del equipo -->
+            <article class="team-member">
+              <img
+                src="https://placehold.co/150x150/e94560/f0f0f0?text=JD"
+                alt="Foto de John Doe"
+                class="team-member-img"
+              />
+              <h3 class="team-member-name">John Doe</h3>
+              <p class="team-member-role">Desarrollador Full-Stack</p>
+              <p class="team-member-bio">
+                Apasionado por la tecnología y creador de soluciones innovadoras
+                que impactan positivamente a los usuarios.
+              </p>
+            </article>
+            <!-- Tarjeta para otro miembro del equipo -->
+            <article class="team-member">
+              <img
+                src="https://placehold.co/150x150/e94560/f0f0f0?text=JS"
+                alt="Foto de Jane Smith"
+                class="team-member-img"
+              />
+              <h3 class="team-member-name">Jane Smith</h3>
+              <p class="team-member-role">Diseñadora UI/UX</p>
+              <p class="team-member-bio">
+                Enfocada en crear experiencias de usuario memorables a través de
+                interfaces limpias y funcionales.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Pie de página del sitio web -->
+    <footer class="site-footer-main">
+      <div class="container">
+        <p>&copy; 2024 Post-Place. Todos los derechos reservados.</p>
+        <div class="footer-links">
+          <a href="#">Política de Privacidad</a>
+          <a href="#">Términos de Servicio</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

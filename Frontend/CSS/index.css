@@ -1,0 +1,316 @@
+/* --- Variables de Color y Tipografía --- */
+/* :root define variables CSS personalizadas para un uso consistente en todo el sitio. */
+:root {
+  --color-background: #1a1a2e; /* Color de fondo principal */
+  --color-surface: #16213e; /* Color para superficies como tarjetas o encabezados */
+  --color-primary: #e94560; /* Color primario para acentos y botones */
+  --color-secondary: #0f3460; /* Color secundario para otros elementos */
+  --color-text: #f0f0f0; /* Color principal del texto */
+  --color-text-muted: #a0a0a0; /* Color de texto para elementos menos importantes */
+  --font-family-base: "Poppins", sans-serif; /* Familia de fuente principal */
+}
+
+/* --- Reseteo y Estilos Base --- */
+/* El selector universal (*) junto con ::before y ::after resetea los estilos por defecto. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* Asegura que padding y border se incluyan en el tamaño total del elemento. */
+  margin: 0; /* Elimina márgenes por defecto. */
+  padding: 0; /* Elimina paddings por defecto. */
+}
+
+html {
+  scroll-behavior: smooth; /* Habilita el desplazamiento suave al hacer clic en enlaces de anclaje. */
+}
+
+body {
+  font-family: var(--font-family-base); /* Aplica la fuente principal. */
+  background-color: var(--color-background); /* Aplica el color de fondo. */
+  color: var(--color-text); /* Aplica el color de texto principal. */
+  line-height: 1.6; /* Mejora la legibilidad del texto. */
+}
+
+.container {
+  max-width: 1100px; /* Ancho máximo para el contenido principal. */
+  margin: 0 auto; /* Centra el contenedor horizontalmente. */
+  padding: 0 20px; /* Añade espacio a los lados. */
+}
+
+img {
+  max-width: 100%; /* Asegura que las imágenes no se desborden de su contenedor. */
+  display: block; /* Elimina el espacio extra debajo de las imágenes. */
+}
+
+a {
+  color: var(--color-primary); /* Color de los enlaces. */
+  text-decoration: none; /* Elimina el subrayado de los enlaces. */
+  transition: color 0.3s ease; /* Transición suave para el cambio de color. */
+}
+
+a:hover {
+  color: #ff768e; /* Cambia el color del enlace al pasar el ratón. */
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 4rem;
+  color: var(--color-text);
+}
+
+/* --- Botones --- */
+.btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 50px; /* Bordes redondeados para una apariencia de píldora. */
+  font-weight: 600;
+  text-align: center;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  border: 2px solid var(--color-primary);
+}
+
+.btn-primary:hover {
+  background-color: transparent; /* Fondo transparente al pasar el ratón. */
+  color: var(--color-primary); /* Color del texto cambia al primario. */
+  transform: translateY(-3px); /* Efecto de elevación sutil. */
+}
+
+.btn-lg {
+  font-size: 1.1rem;
+  padding: 15px 35px;
+}
+
+/* --- Encabezado --- */
+.site-header {
+  background-color: rgba(26, 26, 46, 0.8); /* Fondo semitransparente. */
+  padding: 1rem 0;
+  position: fixed; /* Fija el encabezado en la parte superior. */
+  width: 100%;
+  top: 0;
+  z-index: 1000; /* Asegura que esté por encima de otros elementos. */
+  backdrop-filter: blur(10px); /* Efecto de desenfoque para el fondo. */
+  border-bottom: 1px solid var(--color-secondary);
+}
+
+.site-header .container {
+  display: flex;
+  justify-content: space-between; /* Alinea los elementos a los extremos. */
+  align-items: center; /* Centra verticalmente los elementos. */
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.logo:hover {
+  color: var(--color-text); /* Mantiene el color al pasar el ratón. */
+}
+
+.main-nav ul {
+  list-style: none; /* Elimina los puntos de la lista. */
+  display: flex;
+  gap: 2rem; /* Espacio entre los elementos de la lista. */
+}
+
+.main-nav a {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  position: relative;
+  padding: 5px 0;
+}
+
+/* Efecto de subrayado animado para los enlaces de navegación. */
+.main-nav a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.main-nav a:hover {
+  color: var(--color-text);
+}
+
+.main-nav a:hover::after {
+  width: 100%; /* El subrayado se extiende al 100% al pasar el ratón. */
+}
+
+/* --- Sección Hero --- */
+.hero {
+  min-height: 100vh; /* Ocupa al menos toda la altura de la ventana. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 80px; /* Espacio para el header fijo. */
+  /* Fondo con gradiente oscuro sobre una imagen de relleno. */
+  background: linear-gradient(rgba(26, 26, 46, 0.7), rgba(26, 26, 46, 1)),
+    url("https://placehold.co/1920x1080/1a1a2e/16213e?text=") no-repeat center
+      center/cover;
+}
+
+.hero-content {
+  max-width: 800px;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2.5rem;
+}
+
+/* --- Sección de Características --- */
+.features {
+  padding: 6rem 0;
+}
+
+.features-grid {
+  display: grid;
+  /* Crea columnas responsivas: se ajustan automáticamente según el espacio disponible. */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background-color: var(--color-surface);
+  padding: 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid var(--color-secondary);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px); /* Efecto de elevación al pasar el ratón. */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidad. */
+}
+
+.feature-icon {
+  margin-bottom: 1.5rem;
+}
+
+.feature-icon svg {
+  stroke: var(--color-primary); /* Color del borde del icono SVG. */
+}
+
+.feature-title {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature-description {
+  color: var(--color-text-muted);
+}
+
+/* --- Sección Sobre Nosotros --- */
+.about-us {
+  padding: 6rem 0;
+  background-color: var(--color-secondary);
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  justify-content: center;
+}
+
+.team-member {
+  text-align: center;
+}
+
+.team-member-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%; /* Imagen de perfil circular. */
+  object-fit: cover; /* Asegura que la imagen cubra el espacio sin distorsionarse. */
+  margin: 0 auto 1.5rem;
+  border: 4px solid var(--color-primary);
+}
+
+.team-member-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.team-member-role {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.team-member-bio {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* --- Pie de Página --- */
+.site-footer-main {
+  background-color: var(--color-surface);
+  padding: 2rem 0;
+  text-align: center;
+  border-top: 1px solid var(--color-secondary);
+}
+
+.site-footer-main .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer-links a {
+  color: var(--color-text-muted);
+}
+.footer-links a:hover {
+  color: var(--color-primary);
+}
+
+/* --- Responsividad --- */
+/* Media query para ajustar estilos en pantallas de hasta 768px de ancho (tablets y móviles). */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .site-header .container {
+    flex-direction: column; /* Apila los elementos del header verticalmente. */
+    gap: 1rem;
+  }
+
+  .main-nav ul {
+    gap: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+}

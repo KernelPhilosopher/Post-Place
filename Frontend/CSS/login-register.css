@@ -1,0 +1,314 @@
+/*------------------------------------*\
+    #RESET & VARIABLES
+\*------------------------------------*/
+:root {
+  --color-background: #1a1a2e;
+  --color-surface: #16213e;
+  --color-primary: #e94560;
+  --color-secondary: #0f3460;
+  --color-text: #f0f0f0;
+  --color-text-muted: #a0a0a0;
+  --color-input-bg: #2e2e4d;
+  --font-family-base: "Poppins", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Centra el contenido principal (el formulario) vertical y horizontalmente en la página. */
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/*------------------------------------*\
+    #AUTH COMPONENT (BEM)
+    Se utiliza la metodología BEM (Block, Element, Modifier) para una estructura CSS clara.
+    .auth-container es el Bloque principal.
+\*------------------------------------*/
+.auth-container {
+  background-color: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  position: relative;
+  overflow: hidden; /* Oculta las partes de los paneles que se mueven fuera del contenedor. */
+  width: 100%;
+  max-width: 768px;
+  min-height: 480px;
+}
+
+/* --- FORM CONTAINER (Elemento) --- */
+.auth-container__form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out; /* Define la animación de deslizamiento. */
+}
+
+/* Modificador para el formulario de inicio de sesión. */
+.auth-container__form-container--sign-in {
+  left: 0;
+  width: 50%;
+  z-index: 2; /* Se asegura de que esté visible por defecto. */
+}
+
+/* Modificador para el formulario de registro. */
+.auth-container__form-container--sign-up {
+  left: 0;
+  width: 50%;
+  opacity: 0; /* Oculto por defecto. */
+  z-index: 1;
+}
+
+/* --- State modifier for active panel --- */
+/* Cuando el contenedor principal tiene la clase 'auth-container--right-panel-active'... */
+.auth-container--right-panel-active .auth-container__form-container--sign-in {
+  transform: translateX(
+    100%
+  ); /* ...el panel de sign-in se desliza hacia la derecha. */
+}
+
+.auth-container--right-panel-active .auth-container__form-container--sign-up {
+  transform: translateX(
+    100%
+  ); /* ...el panel de sign-up se desliza a la vista. */
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s; /* Se aplica una animación para un fundido suave. */
+}
+
+@keyframes show {
+  0%,
+  49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
+  }
+}
+
+/* --- OVERLAY CONTAINER (Elemento) --- */
+/* Este contenedor contiene los paneles de bienvenida que se mueven sobre los formularios. */
+.auth-container__overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100; /* Siempre por encima de los formularios. */
+}
+
+.auth-container--right-panel-active .auth-container__overlay-container {
+  transform: translateX(-100%); /* Se desliza hacia la izquierda. */
+}
+
+/* El fondo degradado que se mueve. */
+.auth-container__overlay {
+  background: var(--color-primary);
+  background: linear-gradient(
+    to right,
+    var(--color-secondary),
+    var(--color-primary)
+  );
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  color: var(--color-text);
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%; /* El doble de ancho para permitir el deslizamiento sin mostrar bordes. */
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.auth-container--right-panel-active .auth-container__overlay {
+  transform: translateX(50%);
+}
+
+/* Paneles de texto individuales dentro del overlay. */
+.auth-container__overlay-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.auth-container__overlay-panel--left {
+  transform: translateX(-20%);
+}
+
+.auth-container--right-panel-active .auth-container__overlay-panel--left {
+  transform: translateX(0);
+}
+
+.auth-container__overlay-panel--right {
+  right: 0;
+  transform: translateX(0);
+}
+
+.auth-container--right-panel-active .auth-container__overlay-panel--right {
+  transform: translateX(20%);
+}
+
+/*------------------------------------*\
+    #UI ELEMENTS
+\*------------------------------------*/
+.form {
+  background-color: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 50px;
+  height: 100%;
+  text-align: center;
+}
+
+.form__title {
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.form__input {
+  background-color: var(--color-input-bg);
+  border: none;
+  border-radius: 5px;
+  padding: 12px 15px;
+  margin: 8px 0;
+  width: 100%;
+  color: var(--color-text);
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+
+.form__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Efecto de borde al enfocar un campo de entrada. */
+.form__input:focus {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.form__link {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  text-decoration: none;
+  margin: 15px 0;
+}
+
+.form__link:hover {
+  color: var(--color-primary);
+}
+
+.social-container {
+  margin: 20px 0;
+}
+
+.social-container__link {
+  border: 1px solid var(--color-input-bg);
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px;
+  height: 40px;
+  width: 40px;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.social-container__link:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.button {
+  border-radius: 20px;
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 12px 45px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: transform 80ms ease-in, background-color 0.3s;
+  cursor: pointer;
+}
+
+.button:active {
+  transform: scale(0.95); /* Efecto de pulsación. */
+}
+
+.button:focus {
+  outline: none;
+}
+
+/* Modificador para botones con estilo "fantasma" (solo borde). */
+.button--ghost {
+  background-color: transparent;
+  border-color: #ffffff;
+}
+.button--ghost:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.text {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 20px;
+  letter-spacing: 0.5px;
+  margin: 20px 0 30px;
+}
+
+.text--small {
+  font-size: 12px;
+}
+
+/*------------------------------------*\
+    #RESPONSIVE DESIGN
+\*------------------------------------*/
+@media (max-width: 768px) {
+  /* En pantallas pequeñas, se oculta la animación del overlay para simplificar la interfaz.
+     Los dos formularios (sign-in y sign-up) se gestionan principalmente con JavaScript,
+     cambiando su visibilidad o posición. Esta implementación de CSS es una base
+     que puede requerir ajustes en el JS para una experiencia móvil óptima. */
+  .auth-container__overlay-container {
+    display: none; /* Oculta el overlay en móviles. */
+  }
+
+  .auth-container__form-container {
+    width: 100%;
+  }
+
+  /* La lógica de la clase 'auth-container--right-panel-active' sigue funcionando
+     para mover los paneles, pero sin el overlay visual. */
+}
