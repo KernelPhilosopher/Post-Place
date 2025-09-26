@@ -21,8 +21,8 @@ const corsOptions = {
     const allowedOrigins = [
       "http://localhost:3000",
       "http://localhost:5173",
-      "https://post-place-backend-ayf9.onrender.com", // Tu propio dominio
-      "https://post-place-front.netlify.app/", // tu dominio de Netlify
+      "https://post-place-backend-ayf9.onrender.com",
+      "https://post-place-front.netlify.app", // sin la barra final
     ];
 
     // Permitir requests sin origin (health checks, Postman, etc.)
