@@ -1,5 +1,5 @@
 // =============================================================================
-// Controlador de Usuario - FUNCIONALIDADES COMPLETAS Y SEGURAS
+// Controlador de Usuario - FUNCIONALIDADES CORREGIDAS Y MÁS SEGURAS
 // =============================================================================
 
 const bcrypt = require("bcryptjs");
@@ -27,7 +27,8 @@ exports.updateUserProfile = async (req, res) => {
   const { nombre, email, contraseñaActual, contraseñaNueva } = req.body;
 
   try {
-    const user = await userModel.findByEmailWithPassword(req.user.email);
+    // CORRECCIÓN: Buscar usuario por ID para verificar contraseña
+    const user = await userModel.findByIdWithPassword(userId);
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado." });
     }
@@ -76,7 +77,14 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     if (Object.keys(updates).length === 0) {
-      return res.status(200).json({ message: "No se realizaron cambios." });
+      return res.status(200).json({
+        message: "No se realizaron cambios.",
+        user: {
+          user_id: user.user_id,
+          nombre: user.nombre,
+          email: user.email,
+        },
+      });
     }
 
     const updatedUser = await userModel.updateUser(userId, updates);
@@ -105,7 +113,8 @@ exports.deleteUserAccount = async (req, res) => {
   }
 
   try {
-    const user = await userModel.findByEmailWithPassword(req.user.email);
+    // CORRECCIÓN: Buscar usuario por ID para verificar contraseña
+    const user = await userModel.findByIdWithPassword(userId);
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado." });
     }

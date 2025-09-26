@@ -1,5 +1,5 @@
 // =============================================================================
-// Modelo de Usuario - CORREGIDO Y MEJORADO
+// Modelo de Usuario - CORRECCIÓN DEFINITIVA
 // =============================================================================
 
 const pool = require("../Config/database");
@@ -24,7 +24,7 @@ class UserModel {
   }
 
   /**
-   * NUEVO: Busca un usuario por ID con contraseña (para verificaciones)
+   * Busca un usuario por ID con contraseña (para verificaciones)
    */
   async findByIdWithPassword(userId) {
     const query = "SELECT * FROM usuario WHERE user_id = $1";
@@ -45,12 +45,15 @@ class UserModel {
     const { rows } = await pool.query(query, values);
     return rows[0];
   }
+
   /**
-   * Obtiene posts donde el usuario ha comentado
+   * Obtiene posts donde el usuario ha comentado (VERSIÓN CORREGIDA Y OPTIMIZADA)
    */
   async getPostsWhereUserCommented(userId) {
+    // CORRECCIÓN: Se reescribió la consulta para ser más eficiente y evitar errores lógicos.
+    // Ahora usa una subconsulta para obtener los IDs de los posts y luego busca esos posts.
     const query = `
-      SELECT DISTINCT
+      SELECT
         p.post_id, p.user_id, p.titulo, p.contenido, p.fecha_creacion,
         u.nombre as autor_nombre,
         COALESCE(
@@ -59,10 +62,10 @@ class UserModel {
               json_build_object(
                 'comment_id', c.comment_id,
                 'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creación", -- CORRECCIÓN: tilde en minúscula
+                'fecha_creacion', c."fecha_creación",
                 'user_id', c.user_id,
                 'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creación" ASC -- CORRECCIÓN: tilde en minúscula
+              ) ORDER BY c."fecha_creación" ASC
             )
             FROM comentario c
             JOIN usuario cu ON c.user_id = cu.user_id
@@ -72,8 +75,9 @@ class UserModel {
         ) as comments
       FROM post p
       JOIN usuario u ON p.user_id = u.user_id
-      JOIN comentario co ON co.post_id = p.post_id
-      WHERE co.user_id = $1 AND p.type_id = 1
+      WHERE p.type_id = 1 AND p.post_id IN (
+        SELECT DISTINCT post_id FROM comentario WHERE user_id = $1
+      )
       ORDER BY p.fecha_creacion DESC
     `;
     const { rows } = await pool.query(query, [userId]);
@@ -134,19 +138,12 @@ class UserModel {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
-
-      // Eliminar comentarios del usuario
       await client.query("DELETE FROM comentario WHERE user_id = $1", [userId]);
-
-      // Eliminar posts del usuario
       await client.query("DELETE FROM post WHERE user_id = $1", [userId]);
-
-      // Eliminar usuario
       const result = await client.query(
         "DELETE FROM usuario WHERE user_id = $1 RETURNING user_id",
         [userId]
       );
-
       await client.query("COMMIT");
       return result.rows[0];
     } catch (error) {
@@ -171,10 +168,10 @@ class UserModel {
               json_build_object(
                 'comment_id', c.comment_id,
                 'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creación", -- CORRECCIÓN: tilde en minúscula
+                'fecha_creacion', c."fecha_creación",
                 'user_id', c.user_id,
                 'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creación" ASC -- CORRECCIÓN: tilde en minúscula
+              ) ORDER BY c."fecha_creación" ASC
             )
             FROM comentario c
             JOIN usuario cu ON c.user_id = cu.user_id
