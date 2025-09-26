@@ -8,19 +8,19 @@ const { authenticateToken } = require("../Middleware/authMiddleware");
 
 const router = express.Router();
 
-// Todas las rutas requieren autenticación
+// Todas las rutas de este archivo requieren autenticación
 router.use(authenticateToken);
 
 // Obtener posts donde el usuario ha comentado
 router.get("/commented-posts", userController.getUserCommentedPosts);
 
-// Actualizar perfil
+// Actualizar perfil (nombre, email, contraseña)
 router.put("/profile", userController.updateUserProfile);
 
-// Eliminar cuenta
+// Eliminar cuenta de usuario
 router.delete("/account", userController.deleteUserAccount);
 
-// Buscar posts
+// Buscar posts por palabra clave
 router.get("/search", userController.searchPosts);
 
 module.exports = router;

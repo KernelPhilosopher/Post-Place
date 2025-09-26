@@ -20,23 +20,32 @@ exports.getUserCommentedPosts = async (req, res) => {
 
 /**
  * Actualiza el perfil del usuario autenticado.
- * Requiere la contraseña actual para cambiar datos sensibles.
+ * Requiere la contraseña actual para cambiar datos sensibles como email o contraseña.
  */
 exports.updateUserProfile = async (req, res) => {
   const userId = req.userId;
   const { nombre, email, contraseñaActual, contraseñaNueva } = req.body;
 
   try {
-    // CORRECCIÓN: Buscar usuario por ID para verificar contraseña
+    // Es crucial obtener el usuario con su contraseña para verificarla
     const user = await userModel.findByIdWithPassword(userId);
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
     const updates = {};
+    let needsPasswordCheck = false;
 
-    // Si se intenta cambiar la contraseña o el email, se necesita la contraseña actual
-    if (contraseñaNueva || (email && email.toLowerCase() !== user.email)) {
+    // Determinar si se necesita la contraseña actual
+    if (contraseñaNueva) {
+      needsPasswordCheck = true;
+    }
+    if (email && email.toLowerCase() !== user.email) {
+      needsPasswordCheck = true;
+    }
+
+    // Si se requiere la contraseña, verificarla
+    if (needsPasswordCheck) {
       if (!contraseñaActual) {
         return res.status(400).json({
           error: "Se requiere la contraseña actual para realizar esta acción.",
@@ -113,7 +122,6 @@ exports.deleteUserAccount = async (req, res) => {
   }
 
   try {
-    // CORRECCIÓN: Buscar usuario por ID para verificar contraseña
     const user = await userModel.findByIdWithPassword(userId);
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado." });

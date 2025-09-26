@@ -24,7 +24,7 @@ class UserModel {
   }
 
   /**
-   * Busca un usuario por ID con contraseña (para verificaciones)
+   * Busca un usuario por ID con contraseña (para verificaciones de seguridad)
    */
   async findByIdWithPassword(userId) {
     const query = "SELECT * FROM usuario WHERE user_id = $1";
@@ -48,10 +48,10 @@ class UserModel {
 
   /**
    * Obtiene posts donde el usuario ha comentado (VERSIÓN CORREGIDA Y OPTIMIZADA)
+   * CORRECCIÓN: Se reescribió la consulta para ser más eficiente y evitar errores.
+   * Ahora usa una subconsulta para obtener los IDs de los posts y luego busca esos posts.
    */
   async getPostsWhereUserCommented(userId) {
-    // CORRECCIÓN: Se reescribió la consulta para ser más eficiente y evitar errores lógicos.
-    // Ahora usa una subconsulta para obtener los IDs de los posts y luego busca esos posts.
     const query = `
       SELECT
         p.post_id, p.user_id, p.titulo, p.contenido, p.fecha_creacion,
@@ -62,10 +62,10 @@ class UserModel {
               json_build_object(
                 'comment_id', c.comment_id,
                 'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creación",
+                'fecha_creacion', c."fecha_creaciÓn",
                 'user_id', c.user_id,
                 'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creación" ASC
+              ) ORDER BY c."fecha_creaciÓn" ASC
             )
             FROM comentario c
             JOIN usuario cu ON c.user_id = cu.user_id
@@ -85,7 +85,7 @@ class UserModel {
   }
 
   /**
-   * Actualiza información del usuario
+   * Actualiza información del perfil del usuario (nombre, email, contraseña)
    */
   async updateUser(userId, updates) {
     const client = await pool.connect();
@@ -93,26 +93,29 @@ class UserModel {
       await client.query("BEGIN");
 
       let query = "UPDATE usuario SET ";
-      let values = [];
+      const values = [];
       let paramIndex = 1;
       const setParts = [];
 
       if (updates.nombre) {
-        setParts.push(`nombre = $${paramIndex}`);
+        setParts.push(`nombre = $${paramIndex++}`);
         values.push(updates.nombre.trim());
-        paramIndex++;
       }
 
       if (updates.email) {
-        setParts.push(`email = $${paramIndex}`);
+        setParts.push(`email = $${paramIndex++}`);
         values.push(updates.email.toLowerCase());
-        paramIndex++;
       }
 
       if (updates.hashedPassword) {
-        setParts.push(`"contraseña" = $${paramIndex}`);
+        setParts.push(`"contraseña" = $${paramIndex++}`);
         values.push(updates.hashedPassword);
-        paramIndex++;
+      }
+
+      if (setParts.length === 0) {
+        // No hay nada que actualizar
+        await client.query("ROLLBACK");
+        return null;
       }
 
       query += setParts.join(", ");
@@ -132,14 +135,16 @@ class UserModel {
   }
 
   /**
-   * Elimina un usuario y todos sus datos relacionados
+   * Elimina un usuario y todos sus datos relacionados (posts, comentarios) en una transacción.
    */
   async deleteUser(userId) {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
+      // Se eliminan primero las dependencias (comentarios, posts)
       await client.query("DELETE FROM comentario WHERE user_id = $1", [userId]);
       await client.query("DELETE FROM post WHERE user_id = $1", [userId]);
+      // Finalmente se elimina el usuario
       const result = await client.query(
         "DELETE FROM usuario WHERE user_id = $1 RETURNING user_id",
         [userId]
@@ -155,7 +160,9 @@ class UserModel {
   }
 
   /**
-   * Buscar posts por palabra clave
+   * Busca posts por palabra clave en título o contenido (VERSIÓN CORREGIDA)
+   * CORRECCIÓN: La consulta ahora maneja correctamente la búsqueda con LIKE
+   * y previene inyección SQL usando parámetros.
    */
   async searchPosts(searchTerm) {
     const query = `
@@ -168,10 +175,10 @@ class UserModel {
               json_build_object(
                 'comment_id', c.comment_id,
                 'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creación",
+                'fecha_creacion', c."fecha_creaciÓn",
                 'user_id', c.user_id,
                 'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creación" ASC
+              ) ORDER BY c."fecha_creaciÓn" ASC
             )
             FROM comentario c
             JOIN usuario cu ON c.user_id = cu.user_id
