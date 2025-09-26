@@ -10,8 +10,8 @@ const cors = require("cors");
 
 const authRoutes = require("./Routes/authRoutes");
 const postRoutes = require("./Routes/postRoutes");
-// Agregar después de las rutas existentes:
 const userRoutes = require("./Routes/userRoutes");
+const commentRoutes = require("./Routes/commentRoutes"); // NUEVA RUTA
 const initializeSocketManager = require("./Sockets/socketsManager");
 
 const app = express();
@@ -68,8 +68,8 @@ app.get("/health", (req, res) => {
 // Rutas principales
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
-// Usar las nuevas rutas
 app.use("/api/user", userRoutes);
+app.use("/api/comments", commentRoutes); // USAR NUEVA RUTA
 
 // Middleware de manejo de errores
 app.use((error, req, res, next) => {

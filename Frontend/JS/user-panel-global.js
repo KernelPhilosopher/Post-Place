@@ -30,10 +30,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("search-btn");
   const clearSearchBtn = document.getElementById("clear-search-btn");
   const searchResultsTitle = document.getElementById("search-results-title");
+
+  // Modales de Posts
   const editModal = document.getElementById("edit-modal");
   const editTextarea = document.getElementById("edit-textarea");
   const saveEditBtn = document.getElementById("save-edit-btn");
   const cancelEditBtn = document.getElementById("cancel-edit-btn");
+  let postToEditId = null;
+
+  // NUEVO: Modales de Comentarios
+  const commentEditModal = document.getElementById("comment-edit-modal");
+  const commentEditTextarea = document.getElementById("comment-edit-textarea");
+  const commentSaveEditBtn = document.getElementById("comment-save-edit-btn");
+  const commentCancelEditBtn = document.getElementById(
+    "comment-cancel-edit-btn"
+  );
+  let commentToEditId = null;
+
+  // Configuración
   const configModal = document.getElementById("config-modal");
   const configBtn = document.querySelector(".config-btn");
   const configForm = document.getElementById("config-form");
@@ -41,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const deleteAccountBtn = document.getElementById("delete-account-btn");
   const logoutBtn = document.querySelector(".logout-btn");
 
-  let postToEditId = null;
   let currentView = "my-posts-view";
 
   // --- INICIALIZACIÓN ---
@@ -94,21 +107,38 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- RENDERIZADO ---
   const createCommentHTML = (comment) => {
     const authorName = comment.autor_nombre || "Desconocido";
-    const authorTag =
-      comment.user_id === LOGGED_IN_USER.user_id
-        ? `<span class="comment-author-you">(Tú)</span>`
-        : "";
+    const isMyComment = comment.user_id === LOGGED_IN_USER.user_id;
+
+    const authorTag = isMyComment
+      ? `<span class="comment-author-you">(Tú)</span>`
+      : "";
+
+    const actionsHTML = isMyComment
+      ? `
+      <div class="comment-actions">
+        <button class="comment-action-btn comment-edit-btn" data-id="${comment.comment_id}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        </button>
+        <button class="comment-action-btn comment-delete-btn" data-id="${comment.comment_id}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </button>
+      </div>`
+      : "";
+
     return `
       <div class="comment-card" data-comment-id="${comment.comment_id}">
         <div class="comment-avatar" style="background-color: #${getHexColor(
           authorName
         )}">${authorName.substring(0, 1).toUpperCase()}</div>
         <div class="comment-body">
-          <span class="comment-author">${authorName} ${authorTag}</span>
-          <p class="comment-content">${comment.contenido.replace(
-            /\n/g,
-            "<br>"
-          )}</p>
+          <div>
+            <span class="comment-author">${authorName} ${authorTag}</span>
+            <p class="comment-content">${comment.contenido.replace(
+              /\n/g,
+              "<br>"
+            )}</p>
+          </div>
+          ${actionsHTML}
         </div>
       </div>`;
   };
@@ -220,6 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.body.addEventListener("click", async (e) => {
+    // POSTS
     const deleteBtn = e.target.closest(".delete-btn");
     if (
       deleteBtn &&
@@ -241,6 +272,33 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector(".post-content p")
         .innerHTML.replace(/<br\s*\/?>/gi, "\n");
       editModal.classList.add("visible");
+    }
+
+    // COMENTARIOS
+    const commentDeleteBtn = e.target.closest(".comment-delete-btn");
+    if (
+      commentDeleteBtn &&
+      confirm("¿Estás seguro de que quieres eliminar este comentario?")
+    ) {
+      try {
+        await fetchWithAuth(
+          `${API_URL}/comments/${commentDeleteBtn.dataset.id}`,
+          {
+            method: "DELETE",
+          }
+        );
+      } catch (error) {
+        alert(`No se pudo eliminar el comentario: ${error.message}`);
+      }
+    }
+    const commentEditBtn = e.target.closest(".comment-edit-btn");
+    if (commentEditBtn) {
+      const commentCard = commentEditBtn.closest(".comment-card");
+      commentToEditId = commentCard.dataset.commentId;
+      commentEditTextarea.value = commentCard
+        .querySelector(".comment-content")
+        .innerHTML.replace(/<br\s*\/?>/gi, "\n");
+      commentEditModal.classList.add("visible");
     }
   });
 
@@ -315,7 +373,25 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       editModal.classList.remove("visible");
     } catch (error) {
-      alert(`No se pudo guardar la edición: ${error.message}`);
+      alert(`No se pudo guardar la edición del post: ${error.message}`);
+    }
+  });
+
+  // NUEVO: Listeners para modal de comentarios
+  commentCancelEditBtn.addEventListener("click", () =>
+    commentEditModal.classList.remove("visible")
+  );
+  commentSaveEditBtn.addEventListener("click", async () => {
+    const contenido = commentEditTextarea.value.trim();
+    if (!contenido || !commentToEditId) return;
+    try {
+      await fetchWithAuth(`${API_URL}/comments/${commentToEditId}`, {
+        method: "PUT",
+        body: JSON.stringify({ contenido }),
+      });
+      commentEditModal.classList.remove("visible");
+    } catch (error) {
+      alert(`No se pudo guardar la edición del comentario: ${error.message}`);
     }
   });
 
@@ -339,12 +415,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const contraseñaNueva = document.getElementById(
       "config-new-password"
     ).value;
-
     let body = { nombre, email, contraseñaActual };
-
-    if (contraseñaNueva) {
-      body.contraseñaNueva = contraseñaNueva;
-    }
+    if (contraseñaNueva) body.contraseñaNueva = contraseñaNueva;
 
     try {
       const { message, user } = await fetchWithAuth(`${API_URL}/user/profile`, {
@@ -352,18 +424,12 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(body),
       });
       alert(message);
-
-      // Update local user info
-      LOGGED_IN_USER.nombre = user.nombre;
-      LOGGED_IN_USER.email = user.email;
+      LOGGED_IN_USER = { ...LOGGED_IN_USER, ...user };
       localStorage.setItem("loggedInUser", JSON.stringify(LOGGED_IN_USER));
-
-      // Update UI
       userNameDisplay.textContent = LOGGED_IN_USER.nombre;
       userAvatarDisplay.textContent = LOGGED_IN_USER.nombre
         .substring(0, 1)
         .toUpperCase();
-
       configModal.classList.remove("visible");
     } catch (error) {
       alert(`Error al actualizar el perfil: ${error.message}`);
@@ -417,6 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
   socket.on("post_deleted", ({ postId }) =>
     document.querySelector(`.post-card[data-post-id='${postId}']`)?.remove()
   );
+
   socket.on("new_comment", (newComment) => {
     const postCards = document.querySelectorAll(
       `.post-card[data-post-id='${newComment.post_id}']`
@@ -426,6 +493,23 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector(".comments-list")
         ?.insertAdjacentHTML("beforeend", createCommentHTML(newComment));
     });
+  });
+
+  // NUEVO: Listeners para Sockets de comentarios
+  socket.on("comment_updated", (updatedComment) => {
+    const commentCards = document.querySelectorAll(
+      `.comment-card[data-comment-id='${updatedComment.comment_id}']`
+    );
+    commentCards.forEach(
+      (card) => (card.outerHTML = createCommentHTML(updatedComment))
+    );
+  });
+
+  socket.on("comment_deleted", ({ comment_id }) => {
+    const commentCards = document.querySelectorAll(
+      `.comment-card[data-comment-id='${comment_id}']`
+    );
+    commentCards.forEach((card) => card.remove());
   });
 
   // --- ARRANQUE ---

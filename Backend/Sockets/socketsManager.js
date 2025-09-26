@@ -20,6 +20,9 @@ function initializeSocketManager(httpServer, corsOptions) {
     socket.on("disconnect", () => {
       console.log(`🔌 Cliente desconectado: ${socket.id}`);
     });
+
+    // Podrías agregar aquí eventos específicos si fueran necesarios,
+    // pero por ahora, la emisión se maneja en los controladores.
   });
 
   return io;

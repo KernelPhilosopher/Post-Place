@@ -1,5 +1,5 @@
 // =============================================================================
-// Modelo de Comentario - ADAPTADO PARA SUPABASE
+// Modelo de Comentario - ADAPTADO PARA SUPABASE (CON UPDATE Y DELETE)
 // =============================================================================
 
 const pool = require("../Config/database");
@@ -49,6 +49,64 @@ class CommentModel {
     } finally {
       client.release();
     }
+  }
+
+  /**
+   * Actualiza un comentario existente.
+   * SOLO el autor del comentario puede actualizarlo.
+   */
+  async update(commentId, userId, contenido) {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const updateQuery = `
+        UPDATE comentario
+        SET contenido = $1, "fecha_actualizaciÓn" = NOW()
+        WHERE comment_id = $2 AND user_id = $3
+        RETURNING comment_id, post_id, user_id, contenido, "fecha_creaciÓn" as fecha_creacion;
+      `;
+      const result = await client.query(updateQuery, [
+        contenido,
+        commentId,
+        userId,
+      ]);
+
+      if (result.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return null; // No se actualizó nada (no encontrado o sin permiso)
+      }
+
+      const updatedComment = result.rows[0];
+
+      // Obtener nombre del autor para consistencia de datos
+      const authorQuery = "SELECT nombre FROM usuario WHERE user_id = $1";
+      const authorResult = await client.query(authorQuery, [
+        updatedComment.user_id,
+      ]);
+      const autorNombre = authorResult.rows[0]?.nombre || "Usuario";
+
+      await client.query("COMMIT");
+      return { ...updatedComment, autor_nombre: autorNombre };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * Elimina un comentario.
+   * SOLO el autor del comentario puede eliminarlo.
+   */
+  async remove(commentId, userId) {
+    const query = `
+      DELETE FROM comentario
+      WHERE comment_id = $1 AND user_id = $2
+      RETURNING comment_id, post_id;
+    `;
+    const { rows } = await pool.query(query, [commentId, userId]);
+    return rows[0] ? rows[0] : null; // Devuelve { comment_id, post_id } o null
   }
 }
 
