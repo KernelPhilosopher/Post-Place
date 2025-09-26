@@ -1,8 +1,6 @@
 // =============================================================================
 // Controlador de Autenticación
 // =============================================================================
-// Autor: Tu Nombre
-// Fecha: 2024-09-24
 // Descripción: Contiene la lógica de negocio para el registro e inicio de
 // sesión. Este controlador interactúa con el modelo de usuario para validar
 // y crear usuarios, y genera tokens JWT para la autenticación.

@@ -1,8 +1,6 @@
 // =============================================================================
 // Módulo de Configuración de Base de Datos
 // =============================================================================
-// Autor: Tu Nombre
-// Fecha: 2024-09-24
 // Descripción: Este módulo se encarga de configurar y exportar el pool de
 // conexiones a la base de datos PostgreSQL (Supabase). Centralizar la
 // configuración aquí sigue el Principio de Responsabilidad Única (SRP),

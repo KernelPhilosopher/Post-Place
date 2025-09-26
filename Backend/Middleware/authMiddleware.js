@@ -1,8 +1,6 @@
 // =============================================================================
 // Middleware de Autenticación
 // =============================================================================
-// Autor: Tu Nombre
-// Fecha: 2024-09-24
 // Descripción: Este middleware protege las rutas verificando la validez
 // del Token JWT (JSON Web Token) proporcionado en la cabecera
 // 'Authorization' de la petición. Si el token es válido, extrae el ID
