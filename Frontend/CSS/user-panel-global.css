@@ -423,3 +423,114 @@ main {
   background-color: var(--color-secondary);
   color: var(--color-text-muted);
 }
+
+/* Estilos adicionales para las nuevas funcionalidades */
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.config-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.config-btn:hover {
+  background: #0056b3;
+}
+
+.search-section {
+  margin-bottom: 20px;
+}
+
+.search-container {
+  display: flex;
+  gap: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#search-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+#search-btn,
+#clear-search-btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#search-btn {
+  background: #28a745;
+  color: white;
+}
+
+#clear-search-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.danger-zone {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-left: 4px solid #dc3545;
+}
+
+.danger-zone h4 {
+  color: #dc3545;
+  margin: 0 0 10px 0;
+}
+
+.delete-btn {
+  background: #dc3545 !important;
+  color: white !important;
+}
+
+.delete-btn:hover {
+  background: #c82333 !important;
+}
+
+/* Responsive para el header */
+@media (max-width: 768px) {
+  .header-actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .search-container {
+    flex-direction: column;
+  }
+}

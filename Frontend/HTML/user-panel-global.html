@@ -19,22 +19,50 @@
           <div class="user-avatar"></div>
           <span class="user-name"></span>
         </div>
-        <button class="logout-btn">Cerrar Sesión</button>
+        <div class="header-actions">
+          <button class="config-btn">⚙️ Configuración</button>
+          <button class="logout-btn">Cerrar Sesión</button>
+        </div>
       </div>
     </header>
 
     <main>
       <div class="container">
+        <!-- Barra de búsqueda -->
+        <section class="search-section">
+          <div class="search-container">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Buscar posts por palabra clave..."
+            />
+            <button id="search-btn">🔍 Buscar</button>
+            <button id="clear-search-btn" style="display: none">
+              ✖️ Limpiar
+            </button>
+          </div>
+        </section>
+
+        <!-- Selector de vistas -->
         <div class="view-switcher">
           <input type="radio" id="view-my-posts" name="view" checked />
           <label for="view-my-posts">Mis Publicaciones</label>
+
+          <input type="radio" id="view-commented-posts" name="view" />
+          <label for="view-commented-posts">Posts Comentados</label>
+
           <input type="radio" id="view-global-chat" name="view" />
           <label for="view-global-chat">Chat Global</label>
+
+          <input type="radio" id="view-search-results" name="view" />
+          <label for="view-search-results" style="display: none"
+            >Resultados</label
+          >
         </div>
 
+        <!-- Formulario de posts -->
         <section class="post-form-card">
           <form id="post-form">
-            <!-- CAMBIO: Añadido input para el título -->
             <input
               type="text"
               id="post-title"
@@ -50,12 +78,23 @@
           </form>
         </section>
 
+        <!-- Vistas -->
         <section id="my-posts-view" class="view active">
           <div class="posts-list-container">
             <h2>Mi Actividad</h2>
             <div id="my-posts-list"></div>
             <p id="no-posts-message" style="display: none">
               Aún no has creado ninguna publicación.
+            </p>
+          </div>
+        </section>
+
+        <section id="commented-posts-view" class="view">
+          <div class="posts-list-container">
+            <h2>Posts que has Comentado</h2>
+            <div id="commented-posts-list"></div>
+            <p id="no-commented-posts-message" style="display: none">
+              No has comentado en ningún post aún.
             </p>
           </div>
         </section>
@@ -69,9 +108,20 @@
             </p>
           </div>
         </section>
+
+        <section id="search-results-view" class="view">
+          <div class="posts-list-container">
+            <h2 id="search-results-title">Resultados de Búsqueda</h2>
+            <div id="search-results-list"></div>
+            <p id="no-search-results-message" style="display: none">
+              No se encontraron posts con esa palabra clave.
+            </p>
+          </div>
+        </section>
       </div>
     </main>
 
+    <!-- Modal de edición -->
     <div id="edit-modal" class="modal-overlay">
       <div class="modal-content">
         <h3>Editar Publicación</h3>
@@ -82,6 +132,51 @@
           </button>
           <button id="save-edit-btn" class="modal-btn save-btn">
             Guardar Cambios
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de configuración -->
+    <div id="config-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Configuración de Cuenta</h3>
+        <form id="config-form">
+          <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" id="config-name" />
+          </div>
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="config-email" />
+          </div>
+          <div class="form-group">
+            <label>Contraseña Actual:</label>
+            <input type="password" id="config-current-password" />
+          </div>
+          <div class="form-group">
+            <label>Nueva Contraseña:</label>
+            <input type="password" id="config-new-password" />
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              id="cancel-config-btn"
+              class="modal-btn cancel-btn"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="modal-btn save-btn">
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+        <hr />
+        <div class="danger-zone">
+          <h4>Zona Peligrosa</h4>
+          <p>Esta acción no se puede deshacer.</p>
+          <button id="delete-account-btn" class="modal-btn delete-btn">
+            Eliminar Cuenta
           </button>
         </div>
       </div>
