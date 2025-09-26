@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const logout = () => {
     localStorage.removeItem("loggedInUser");
     localStorage.removeItem("authToken");
-    window.location.href = "../../index.html";
+    window.location.href = "../index.html";
   };
   logoutBtn.addEventListener("click", logout);
 
