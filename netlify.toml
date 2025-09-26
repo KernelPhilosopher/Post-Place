@@ -1,5 +1,5 @@
 [build]
-     publish = "Frontend"
+     publish = "Frontend/HTML"
 
    [[redirects]]
      from = "/*"
