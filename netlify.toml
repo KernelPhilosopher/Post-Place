@@ -1,7 +1,7 @@
 [build]
-     publish = "Frontend/HTML"
+  publish = "Frontend"
 
-   [[redirects]]
-     from = "/*"
-     to = "/index.html"
-     status = 200
+[[redirects]]
+  from = "/*"
+  to = "/HTML/index.html"
+  status = 200
