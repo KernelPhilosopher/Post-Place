@@ -5,3 +5,9 @@
   from = "/*"
   to = "/HTML/index.html"
   status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://post-place-backend-ayf9.onrender.com/api/:splat"
+  status = 200
+  force = true
