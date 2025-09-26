@@ -15,23 +15,35 @@ const initializeSocketManager = require("./Sockets/socketsManager");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS configurado para producción y desarrollo
+// CORS configurado para producción - MÁS PERMISIVO
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
       "http://localhost:3000",
-      "http://localhost:5173", // Vite dev server
-      "https://tu-frontend-app.netlify.app", // Reemplaza con tu dominio de Netlify
+      "http://localhost:5173",
+      "https://post-place-backend-ayf9.onrender.com", // Tu propio dominio
+      // Agrega aquí tu dominio de Netlify cuando lo tengas
     ];
 
-    // En desarrollo, permitir requests sin origin (Postman, etc.)
-    if (!origin && process.env.NODE_ENV !== "production") {
+    // Permitir requests sin origin (health checks, Postman, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // En desarrollo, ser más permisivo
+    if (process.env.NODE_ENV !== "production") {
+      return callback(null, true);
+    }
+
+    // Permitir subdominios de render.com y netlify.app
+    if (origin.includes("onrender.com") || origin.includes("netlify.app")) {
       return callback(null, true);
     }
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log("CORS blocked origin:", origin);
       callback(new Error("No permitido por CORS"));
     }
   },
