@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post-Place | Únete a la Comunidad</title>
+    <meta
+      name="description"
+      content="Únete a Post-Place y empieza a compartir tus ideas con el mundo. Un lugar para registrarse o iniciar sesión de forma segura."
+    />
+    <link rel="stylesheet" href="../CSS/login-register.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="auth-container" id="auth-container">
+      <div
+        class="auth-container__form-container auth-container__form-container--sign-up"
+      >
+        <form id="sign-up-form" class="form">
+          <h1 class="form__title">Crear Cuenta</h1>
+          <span class="text text--small">Usa tu email para registrarte</span>
+          <input
+            type="text"
+            id="signup-name"
+            placeholder="Nombre"
+            class="form__input"
+            required
+          />
+          <input
+            type="email"
+            id="signup-email"
+            placeholder="Email"
+            class="form__input"
+            required
+          />
+          <input
+            type="password"
+            id="signup-password"
+            placeholder="Contraseña"
+            class="form__input"
+            required
+          />
+          <button type="submit" class="button" style="margin-top: 1rem">
+            Registrarse
+          </button>
+        </form>
+      </div>
+
+      <div
+        class="auth-container__form-container auth-container__form-container--sign-in"
+      >
+        <form id="sign-in-form" class="form">
+          <h1 class="form__title">Iniciar Sesión</h1>
+          <span class="text text--small">Usa tu cuenta</span>
+          <input
+            type="email"
+            id="signin-email"
+            placeholder="Email"
+            class="form__input"
+            required
+          />
+          <input
+            type="password"
+            id="signin-password"
+            placeholder="Contraseña"
+            class="form__input"
+            required
+          />
+          <a href="#" class="form__link">¿Olvidaste tu contraseña?</a>
+          <button type="submit" class="button">Iniciar Sesión</button>
+        </form>
+      </div>
+
+      <div class="auth-container__overlay-container">
+        <div class="auth-container__overlay">
+          <div
+            class="auth-container__overlay-panel auth-container__overlay-panel--left"
+          >
+            <h1 class="form__title">¡Bienvenido de vuelta!</h1>
+            <p class="text">
+              Para mantenerte conectado, por favor inicia sesión con tu
+              información personal
+            </p>
+            <button class="button button--ghost" id="signIn">
+              Iniciar Sesión
+            </button>
+          </div>
+          <div
+            class="auth-container__overlay-panel auth-container__overlay-panel--right"
+          >
+            <h1 class="form__title">¡Hola, Amigo!</h1>
+            <p class="text">
+              Ingresa tus datos personales y comienza tu viaje con nosotros
+            </p>
+            <button class="button button--ghost" id="signUp">
+              Registrarse
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../JS/config.js"></script>
+    <script src="../JS/login-register.js"></script>
+  </body>
+</html>

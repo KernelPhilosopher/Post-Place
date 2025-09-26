@@ -1,0 +1,425 @@
+:root {
+  --color-background: #1a1a2e;
+  --color-surface: #16213e;
+  --color-primary: #e94560;
+  --color-secondary: #0f3460;
+  --color-text: #f0f0f0;
+  --color-text-muted: #a0a0a0;
+  --color-input-bg: #2e2e4d;
+  --color-success: #2ecc71;
+  --color-danger: #e74c3c;
+  --font-family-base: "Poppins", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.dashboard-header {
+  background-color: var(--color-surface);
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-secondary);
+}
+.dashboard-header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.user-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+.user-name {
+  font-weight: 600;
+}
+.logout-btn {
+  background: none;
+  border: 2px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: var(--font-family-base);
+  font-size: 0.9rem;
+}
+.logout-btn:hover {
+  background-color: var(--color-danger);
+  color: var(--color-text);
+}
+
+main {
+  padding: 3rem 0;
+}
+
+.view-switcher {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  background-color: var(--color-secondary);
+  padding: 8px;
+  border-radius: 30px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.view-switcher label {
+  flex: 1;
+  padding: 10px 20px;
+  text-align: center;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.view-switcher input[type="radio"] {
+  display: none;
+}
+.view-switcher input[type="radio"]:checked + label {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+}
+
+.view {
+  display: none;
+}
+.view.active {
+  display: block;
+}
+
+.post-form-card {
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 3rem;
+}
+
+/* --- ESTILOS PARA INPUTS DEL FORMULARIO DE POSTS --- */
+#post-form input[type="text"],
+#post-form textarea {
+  width: 100%;
+  background-color: var(--color-input-bg);
+  border: 2px solid var(--color-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--color-text);
+  font-family: var(--font-family-base);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+#post-form input[type="text"] {
+  margin-bottom: 1rem;
+}
+
+#post-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+#post-form input[type="text"]:focus,
+#post-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+#post-form button {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  border: none;
+  cursor: pointer;
+}
+#post-form button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.posts-list-container h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--color-secondary);
+  padding-bottom: 0.5rem;
+}
+#no-posts-message,
+#no-global-posts-message {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 2rem;
+  background-color: var(--color-surface);
+  border-radius: 12px;
+}
+
+.post-card {
+  background-color: var(--color-surface);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.post-author {
+  font-weight: 600;
+}
+.post-author-you {
+  color: var(--color-primary);
+  font-size: 0.8em;
+  margin-left: 5px;
+}
+
+/* --- ESTILOS PARA TÍTULO Y CONTENIDO DEL POST --- */
+.post-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.post-content p {
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+.post-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+.post-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+.post-actions {
+  display: flex;
+  gap: 10px;
+}
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+.action-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: stroke 0.3s ease;
+  pointer-events: none;
+}
+.edit-btn svg {
+  stroke: var(--color-success);
+}
+.edit-btn:hover svg {
+  stroke: #58d68d;
+}
+.delete-btn svg {
+  stroke: var(--color-danger);
+}
+.delete-btn:hover svg {
+  stroke: #ec7063;
+}
+
+/* --- NUEVOS ESTILOS PARA LA SECCIÓN DE COMENTARIOS --- */
+.comments-section {
+  border-top: 1px solid var(--color-secondary);
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+}
+
+.comments-list {
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 10px; /* Para que la barra de scroll no se pegue */
+}
+
+.comment-card {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.comment-body {
+  background-color: var(--color-input-bg);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.comment-author-you {
+  color: var(--color-primary);
+  font-size: 0.8em;
+  margin-left: 5px;
+}
+
+.comment-content {
+  font-size: 0.95rem;
+}
+
+.comment-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+.comment-form input {
+  flex-grow: 1;
+  background-color: var(--color-input-bg);
+  border: 2px solid var(--color-secondary);
+  border-radius: 20px;
+  padding: 8px 15px;
+  color: var(--color-text);
+  font-family: var(--font-family-base);
+}
+.comment-form input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.comment-form button {
+  background-color: var(--color-primary);
+  border: none;
+  color: white;
+  padding: 0 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.modal-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+.modal-content {
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+.modal-overlay.visible .modal-content {
+  transform: scale(1);
+}
+.modal-content h3 {
+  margin-bottom: 1.5rem;
+}
+.modal-content textarea {
+  width: 100%;
+  min-height: 150px;
+  background-color: var(--color-input-bg);
+  border: 2px solid var(--color-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--color-text);
+  font-family: var(--font-family-base);
+  font-size: 1rem;
+  resize: vertical;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.modal-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+.modal-btn:hover {
+  opacity: 0.9;
+}
+.save-btn {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+}
+.cancel-btn {
+  background-color: var(--color-secondary);
+  color: var(--color-text-muted);
+}

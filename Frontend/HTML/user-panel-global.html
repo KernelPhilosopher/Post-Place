@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Post-Place</title>
+    <link rel="stylesheet" href="../CSS/user-panel-global.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="dashboard-header">
+      <div class="container">
+        <div class="user-info">
+          <div class="user-avatar"></div>
+          <span class="user-name"></span>
+        </div>
+        <button class="logout-btn">Cerrar Sesión</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <div class="view-switcher">
+          <input type="radio" id="view-my-posts" name="view" checked />
+          <label for="view-my-posts">Mis Publicaciones</label>
+          <input type="radio" id="view-global-chat" name="view" />
+          <label for="view-global-chat">Chat Global</label>
+        </div>
+
+        <section class="post-form-card">
+          <form id="post-form">
+            <!-- CAMBIO: Añadido input para el título -->
+            <input
+              type="text"
+              id="post-title"
+              placeholder="Título de tu publicación"
+              required
+            />
+            <textarea
+              id="post-textarea"
+              placeholder="¿Qué estás pensando?"
+              required
+            ></textarea>
+            <button type="submit" id="post-submit-btn">Publicar</button>
+          </form>
+        </section>
+
+        <section id="my-posts-view" class="view active">
+          <div class="posts-list-container">
+            <h2>Mi Actividad</h2>
+            <div id="my-posts-list"></div>
+            <p id="no-posts-message" style="display: none">
+              Aún no has creado ninguna publicación.
+            </p>
+          </div>
+        </section>
+
+        <section id="global-chat-view" class="view">
+          <div class="posts-list-container">
+            <h2>Chat Global</h2>
+            <div id="global-chat-list"></div>
+            <p id="no-global-posts-message" style="display: none">
+              El chat global está vacío. ¡Sé el primero en publicar!
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="edit-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Editar Publicación</h3>
+        <textarea id="edit-textarea"></textarea>
+        <div class="modal-actions">
+          <button id="cancel-edit-btn" class="modal-btn cancel-btn">
+            Cancelar
+          </button>
+          <button id="save-edit-btn" class="modal-btn save-btn">
+            Guardar Cambios
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../JS/config.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="../JS/user-panel-global.js"></script>
+  </body>
+</html>
