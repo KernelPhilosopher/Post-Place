@@ -1,5 +1,5 @@
 // =============================================================================
-// Modelo de Usuario - ADAPTADO PARA SUPABASE
+// Modelo de Usuario - CORREGIDO Y MEJORADO
 // =============================================================================
 
 const pool = require("../Config/database");
@@ -20,6 +20,15 @@ class UserModel {
   async findByEmailWithPassword(email) {
     const query = "SELECT * FROM usuario WHERE email = $1";
     const { rows } = await pool.query(query, [email.toLowerCase()]);
+    return rows[0] || null;
+  }
+
+  /**
+   * NUEVO: Busca un usuario por ID con contraseña (para verificaciones)
+   */
+  async findByIdWithPassword(userId) {
+    const query = "SELECT * FROM usuario WHERE user_id = $1";
+    const { rows } = await pool.query(query, [userId]);
     return rows[0] || null;
   }
 
@@ -50,10 +59,10 @@ class UserModel {
               json_build_object(
                 'comment_id', c.comment_id,
                 'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creaciÓn",
+                'fecha_creacion', c."fecha_creación", -- CORRECCIÓN: tilde en minúscula
                 'user_id', c.user_id,
                 'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creaciÓn" ASC
+              ) ORDER BY c."fecha_creación" ASC -- CORRECCIÓN: tilde en minúscula
             )
             FROM comentario c
             JOIN usuario cu ON c.user_id = cu.user_id
@@ -162,10 +171,10 @@ class UserModel {
               json_build_object(
                 'comment_id', c.comment_id,
                 'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creaciÓn",
+                'fecha_creacion', c."fecha_creación", -- CORRECCIÓN: tilde en minúscula
                 'user_id', c.user_id,
                 'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creaciÓn" ASC
+              ) ORDER BY c."fecha_creación" ASC -- CORRECCIÓN: tilde en minúscula
             )
             FROM comentario c
             JOIN usuario cu ON c.user_id = cu.user_id
