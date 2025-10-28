@@ -1,35 +1,37 @@
 // =============================================================================
-// Controlador de Posts - MEJORADO PARA SUPABASE
+// Controlador de Posts - con soporte de imágenes (local o nube)
 // =============================================================================
 
 const postModel = require("../Models/postModel");
 const commentModel = require("../Models/commentModel");
 
+
+const buildImageUrl = (req, filename) => {
+  if (!filename) return null;
+  // En local (dev): /uploads/...
+  if (process.env.NODE_ENV !== "production") {
+    return `/uploads/${filename}`;
+  }
+
+  return filename;
+};
+
 /**
  * Crea una nueva publicación
  */
 exports.createPost = async (req, res) => {
-  const { titulo, contenido } = req.body;
   const userId = req.userId;
+  const { titulo, contenido } = req.body;
 
   if (!titulo?.trim() || !contenido?.trim()) {
-    return res.status(400).json({
-      error: "El título y el contenido no pueden estar vacíos.",
-    });
+    return res.status(400).json({ error: "El título y el contenido no pueden estar vacíos." });
   }
 
   try {
-    const newPost = await postModel.create(
-      userId,
-      titulo.trim(),
-      contenido.trim()
-    );
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null; // 👈 opcional
+    const newPost = await postModel.create(userId, titulo.trim(), contenido.trim(), imageUrl);
 
-    const io = req.app.get("io");
-    if (io) {
-      io.emit("new_post", newPost);
-    }
-
+    req.app.get("io")?.emit("new_post", newPost); // realtime
     res.status(201).json(newPost);
   } catch (error) {
     console.error("Error en createPost:", error);
@@ -37,46 +39,35 @@ exports.createPost = async (req, res) => {
   }
 };
 
+
 /**
- * Crea un nuevo comentario
+ * Crea un nuevo comentario (solo texto)
  */
 exports.createComment = async (req, res) => {
-  const { contenido } = req.body;
-  const postId = parseInt(req.params.postId);
-  const userId = req.userId;
-
-  if (!contenido?.trim()) {
-    return res.status(400).json({
-      error: "El contenido del comentario no puede estar vacío.",
-    });
-  }
-
-  if (isNaN(postId) || postId <= 0) {
-    return res.status(400).json({
-      error: "ID de post inválido.",
-    });
-  }
-
   try {
-    const newComment = await commentModel.create(
-      postId,
-      userId,
-      contenido.trim()
-    );
+    const userId = req.userId;
+    const postId = (req.params.postId ?? "").toString().trim();
+    if (!postId)
+      return res.status(400).json({ error: "ID de post inválido." });
+
+    const contenido = (req.body?.contenido ?? "").toString().trim();
+    if (!contenido)
+      return res
+        .status(400)
+        .json({ error: "El contenido del comentario no puede estar vacío." });
+
+    // null porque los comentarios no tienen imagen
+    const newComment = await commentModel.create(postId, userId, contenido, null);
 
     const io = req.app.get("io");
-    if (io) {
-      io.emit("new_comment", newComment);
-    }
+    if (io) io.emit("new_comment", newComment);
 
     res.status(201).json(newComment);
   } catch (error) {
     console.error("Error en createComment:", error);
-
     if (error.message === "El post especificado no existe") {
       return res.status(404).json({ error: error.message });
     }
-
     res.status(500).json({ error: "Error interno del servidor." });
   }
 };
@@ -142,9 +133,7 @@ exports.updatePost = async (req, res) => {
     }
 
     const io = req.app.get("io");
-    if (io) {
-      io.emit("post_updated", updatedPost);
-    }
+    if (io) io.emit("post_updated", updatedPost);
 
     res.json(updatedPost);
   } catch (error) {
@@ -176,9 +165,7 @@ exports.deletePost = async (req, res) => {
     }
 
     const io = req.app.get("io");
-    if (io) {
-      io.emit("post_deleted", { postId: deletedPostId });
-    }
+    if (io) io.emit("post_deleted", { postId: deletedPostId });
 
     res.status(200).json({ message: "Post eliminado exitosamente." });
   } catch (error) {

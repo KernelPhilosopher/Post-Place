@@ -5,6 +5,8 @@
 const express = require("express");
 const postController = require("../Controllers/postController");
 const { authenticateToken } = require("../Middleware/authMiddleware");
+//direccion upload middleware
+const { uploadImage } = require("../Middleware/uploadMiddleware");
 
 const router = express.Router();
 
@@ -12,13 +14,17 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // Rutas de posts
+
+router.post("/", uploadImage.single("image"), postController.createPost);
+
 router.get("/", postController.getAllPosts);
 router.get("/me", postController.getUserPosts);
-router.post("/", postController.createPost);
+
 router.put("/:id", postController.updatePost);
 router.delete("/:id", postController.deletePost);
 
 // Ruta de comentarios
 router.post("/:postId/comments", postController.createComment);
+
 
 module.exports = router;

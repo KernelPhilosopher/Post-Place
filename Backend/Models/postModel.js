@@ -1,14 +1,14 @@
 // =============================================================================
-// Modelo de Publicación - ADAPTADO PARA NEO4J
+// Modelo de Publicación - ADAPTADO PARA NEO4J (CON IMÁGENES)
 // =============================================================================
 
 const { runQuery, runTransaction } = require("../Config/database");
 
 class PostModel {
   /**
-   * Crea una nueva publicación
+   * Crea una nueva publicación (con imagen opcional)
    */
-  async create(userId, titulo, contenido) {
+  async create(userId, titulo, contenido, imageUrl = null) {
     return await runTransaction(async (tx) => {
       const query = `
         MATCH (u:Usuario {user_id: $userId})
@@ -17,6 +17,7 @@ class PostModel {
           user_id: $userId,
           titulo: $titulo,
           contenido: $contenido,
+          imageUrl: $imageUrl,             
           fecha_creacion: datetime(),
           fecha_actualizacion: datetime()
         })
@@ -25,11 +26,12 @@ class PostModel {
                p.user_id as user_id,
                p.titulo as titulo,
                p.contenido as contenido,
+               p.imageUrl as imageUrl,      
                toString(p.fecha_creacion) as fecha_creacion,
                u.nombre as autor_nombre
       `;
 
-      const result = await tx.run(query, { userId, titulo, contenido });
+      const result = await tx.run(query, { userId, titulo, contenido, imageUrl });
       if (result.records.length === 0) return null;
 
       const post = result.records[0].toObject();
@@ -39,7 +41,7 @@ class PostModel {
   }
 
   /**
-   * Obtiene todas las publicaciones con comentarios
+   * Obtiene todas las publicaciones con comentarios (incluye imágenes)
    */
   async findAll() {
     const query = `
@@ -57,6 +59,7 @@ class PostModel {
              p.user_id as user_id,
              p.titulo as titulo,
              p.contenido as contenido,
+             p.imageUrl as imageUrl,        
              toString(p.fecha_creacion) as fecha_creacion,
              autor.nombre as autor_nombre,
              comments
@@ -66,14 +69,13 @@ class PostModel {
     const records = await runQuery(query);
     return records.map((record) => {
       const obj = record.toObject();
-      // Filtrar comentarios null
       obj.comments = obj.comments.filter((c) => c.comment_id !== null);
       return obj;
     });
   }
 
   /**
-   * Obtiene publicaciones de un usuario específico
+   * Obtiene publicaciones de un usuario específico (con imágenes)
    */
   async findByUserId(userId) {
     const query = `
@@ -91,6 +93,7 @@ class PostModel {
              p.user_id as user_id,
              p.titulo as titulo,
              p.contenido as contenido,
+             p.imageUrl as imageUrl,        
              toString(p.fecha_creacion) as fecha_creacion,
              autor.nombre as autor_nombre,
              comments
@@ -128,6 +131,7 @@ class PostModel {
                p.user_id as user_id,
                p.titulo as titulo,
                p.contenido as contenido,
+               p.imageUrl as imageUrl,        
                toString(p.fecha_creacion) as fecha_creacion,
                u.nombre as autor_nombre,
                comments

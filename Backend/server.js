@@ -1,9 +1,7 @@
-// =============================================================================
-// Servidor Principal - CONFIGURADO PARA NEO4J Y PRODUCCIÓN
-// =============================================================================
-
 const http = require("http");
-require("dotenv").config();
+const path = require("path");
+
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const express = require("express");
 const cors = require("cors");
@@ -17,110 +15,50 @@ const { closeDriver } = require("./Config/database");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+//IMAGENES
 
-// CORS configurado para producción
-const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "https://post-place-backend-ayf9.onrender.com",
-      "https://post-place-front.netlify.app",
-    ];
+const fs = require("fs");
+const uploadsPath = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
+app.use("/uploads", express.static(uploadsPath));
 
-    if (!origin) {
-      return callback(null, true);
-    }
 
-    if (process.env.NODE_ENV !== "production") {
-      return callback(null, true);
-    }
 
-    if (origin.includes("onrender.com") || origin.includes("netlify.app")) {
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log("CORS blocked origin:", origin);
-      callback(new Error("No permitido por CORS"));
-    }
-  },
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
+// Configurar CORS
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Ruta de health check
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    database: "Neo4j AuraDB",
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development",
-  });
+// Servir frontend
+app.use(express.static(path.join(__dirname, "../Frontend")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../Frontend", "index.html"));
 });
 
-// Rutas principales
+
+// Rutas API
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/comments", commentRoutes);
 
-// Middleware de manejo de errores
-app.use((error, req, res, next) => {
-  console.error("Error no manejado:", error);
-  res.status(500).json({
-    error: "Error interno del servidor",
-    details:
-      process.env.NODE_ENV === "development" ? error.message : "Error interno",
-  });
+// Health check
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK" });
 });
 
-// Crear servidor HTTP
-const server = http.createServer(app);
+// Middleware de errores
+app.use((error, req, res, next) => {
+  console.error(error);
+  res.status(500).json({ error: "Error interno del servidor" });
+});
 
-// Inicializar Socket.IO
-const io = initializeSocketManager(server, corsOptions);
+const server = http.createServer(app);
+const io = initializeSocketManager(server);
+
 app.set("io", io);
 
-// Iniciar servidor
 server.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 ========================================");
-  console.log(`🟢 Servidor ejecutándose en puerto ${PORT}`);
-  console.log(`🔗 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`📊 Database: Neo4j AuraDB`);
-  console.log("🚀 ========================================");
-});
-
-// Manejo de errores no capturados
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Rechazo no manejado en:", promise, "razón:", reason);
-});
-
-process.on("uncaughtException", (error) => {
-  console.error("Excepción no capturada:", error);
-  process.exit(1);
-});
-
-// Graceful shutdown
-process.on("SIGTERM", async () => {
-  console.log("SIGTERM recibido. Cerrando servidor...");
-  await closeDriver();
-  server.close(() => {
-    console.log("Servidor cerrado.");
-    process.exit(0);
-  });
-});
-
-process.on("SIGINT", async () => {
-  console.log("\nSIGINT recibido. Cerrando servidor...");
-  await closeDriver();
-  server.close(() => {
-    console.log("Servidor cerrado.");
-    process.exit(0);
-  });
+  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`🔑 JWT_SECRET cargado:`, !!process.env.JWT_SECRET);
 });
