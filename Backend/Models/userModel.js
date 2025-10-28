@@ -1,35 +1,44 @@
 // =============================================================================
-// Modelo de Usuario - CORRECCIÓN DEFINITIVA
+// Modelo de Usuario - ADAPTADO PARA NEO4J
 // =============================================================================
 
-const pool = require("../Config/database");
+const { runQuery, runTransaction } = require("../Config/database");
 
 class UserModel {
   /**
    * Busca un usuario por email (sin contraseña)
    */
   async findByEmail(email) {
-    const query = "SELECT user_id, nombre, email FROM usuario WHERE email = $1";
-    const { rows } = await pool.query(query, [email.toLowerCase()]);
-    return rows[0] || null;
+    const query = `
+      MATCH (u:Usuario {email: $email})
+      RETURN u.user_id as user_id, u.nombre as nombre, u.email as email
+    `;
+    const records = await runQuery(query, { email: email.toLowerCase() });
+    return records.length > 0 ? records[0].toObject() : null;
   }
 
   /**
    * Busca un usuario por email con contraseña (para login)
    */
   async findByEmailWithPassword(email) {
-    const query = "SELECT * FROM usuario WHERE email = $1";
-    const { rows } = await pool.query(query, [email.toLowerCase()]);
-    return rows[0] || null;
+    const query = `
+      MATCH (u:Usuario {email: $email})
+      RETURN u.user_id as user_id, u.nombre as nombre, u.email as email, u.contraseña as contraseña
+    `;
+    const records = await runQuery(query, { email: email.toLowerCase() });
+    return records.length > 0 ? records[0].toObject() : null;
   }
 
   /**
    * Busca un usuario por ID con contraseña (para verificaciones de seguridad)
    */
   async findByIdWithPassword(userId) {
-    const query = "SELECT * FROM usuario WHERE user_id = $1";
-    const { rows } = await pool.query(query, [userId]);
-    return rows[0] || null;
+    const query = `
+      MATCH (u:Usuario {user_id: $userId})
+      RETURN u.user_id as user_id, u.nombre as nombre, u.email as email, u.contraseña as contraseña
+    `;
+    const records = await runQuery(query, { userId });
+    return records.length > 0 ? records[0].toObject() : null;
   }
 
   /**
@@ -37,167 +46,151 @@ class UserModel {
    */
   async create(nombre, email, hashedPassword) {
     const query = `
-      INSERT INTO usuario (nombre, email, "contraseña")
-      VALUES ($1, $2, $3)
-      RETURNING user_id, nombre, email
+      CREATE (u:Usuario {
+        user_id: randomUUID(),
+        nombre: $nombre,
+        email: $email,
+        contraseña: $hashedPassword,
+        fecha_creacion: datetime(),
+        fecha_actualizacion: datetime()
+      })
+      RETURN u.user_id as user_id, u.nombre as nombre, u.email as email
     `;
-    const values = [nombre.trim(), email.toLowerCase(), hashedPassword];
-    const { rows } = await pool.query(query, values);
-    return rows[0];
+    const records = await runQuery(query, {
+      nombre: nombre.trim(),
+      email: email.toLowerCase(),
+      hashedPassword,
+    });
+    return records.length > 0 ? records[0].toObject() : null;
   }
 
   /**
-   * Obtiene posts donde el usuario ha comentado (VERSIÓN CORREGIDA Y OPTIMIZADA)
-   * CORRECCIÓN: Se reescribió la consulta para ser más eficiente y evitar errores.
-   * Ahora usa una subconsulta para obtener los IDs de los posts y luego busca esos posts.
+   * Obtiene posts donde el usuario ha comentado
    */
   async getPostsWhereUserCommented(userId) {
     const query = `
-      SELECT
-        p.post_id, p.user_id, p.titulo, p.contenido, p.fecha_creacion,
-        u.nombre as autor_nombre,
-        COALESCE(
-          (
-            SELECT json_agg(
-              json_build_object(
-                'comment_id', c.comment_id,
-                'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creaciÓn",
-                'user_id', c.user_id,
-                'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creaciÓn" ASC
-            )
-            FROM comentario c
-            JOIN usuario cu ON c.user_id = cu.user_id
-            WHERE c.post_id = p.post_id
-          ),
-          '[]'::json
-        ) as comments
-      FROM post p
-      JOIN usuario u ON p.user_id = u.user_id
-      WHERE p.type_id = 1 AND p.post_id IN (
-        SELECT DISTINCT post_id FROM comentario WHERE user_id = $1
-      )
+      MATCH (u:Usuario {user_id: $userId})-[:COMENTO]->(c:Comentario)-[:EN_POST]->(p:Post)
+      MATCH (autor:Usuario)-[:CREO]->(p)
+      WITH DISTINCT p, autor
+      OPTIONAL MATCH (p)<-[:EN_POST]-(comentarios:Comentario)<-[:COMENTO]-(comentarista:Usuario)
+      WITH p, autor,
+           collect({
+             comment_id: comentarios.comment_id,
+             contenido: comentarios.contenido,
+             fecha_creacion: toString(comentarios.fecha_creacion),
+             user_id: comentarista.user_id,
+             autor_nombre: comentarista.nombre
+           }) as comments
+      RETURN p.post_id as post_id,
+             p.user_id as user_id,
+             p.titulo as titulo,
+             p.contenido as contenido,
+             toString(p.fecha_creacion) as fecha_creacion,
+             autor.nombre as autor_nombre,
+             comments
       ORDER BY p.fecha_creacion DESC
     `;
-    const { rows } = await pool.query(query, [userId]);
-    return rows;
+    const records = await runQuery(query, { userId });
+    return records.map((record) => {
+      const obj = record.toObject();
+      // Filtrar comentarios null
+      obj.comments = obj.comments.filter((c) => c.comment_id !== null);
+      return obj;
+    });
   }
 
   /**
-   * Actualiza información del perfil del usuario (nombre, email, contraseña)
+   * Actualiza información del perfil del usuario
    */
   async updateUser(userId, updates) {
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-
-      let query = "UPDATE usuario SET ";
-      const values = [];
-      let paramIndex = 1;
-      const setParts = [];
+    return await runTransaction(async (tx) => {
+      let setParts = [];
+      let params = { userId };
 
       if (updates.nombre) {
-        setParts.push(`nombre = $${paramIndex++}`);
-        values.push(updates.nombre.trim());
+        setParts.push("u.nombre = $nombre");
+        params.nombre = updates.nombre.trim();
       }
 
       if (updates.email) {
-        setParts.push(`email = $${paramIndex++}`);
-        values.push(updates.email.toLowerCase());
+        setParts.push("u.email = $email");
+        params.email = updates.email.toLowerCase();
       }
 
       if (updates.hashedPassword) {
-        setParts.push(`"contraseña" = $${paramIndex++}`);
-        values.push(updates.hashedPassword);
+        setParts.push("u.contraseña = $hashedPassword");
+        params.hashedPassword = updates.hashedPassword;
       }
 
       if (setParts.length === 0) {
-        // No hay nada que actualizar
-        await client.query("ROLLBACK");
         return null;
       }
 
-      query += setParts.join(", ");
-      query += `, fecha_actualizacion = NOW() WHERE user_id = $${paramIndex} RETURNING user_id, nombre, email`;
-      values.push(userId);
+      const query = `
+        MATCH (u:Usuario {user_id: $userId})
+        SET ${setParts.join(", ")},
+            u.fecha_actualizacion = datetime()
+        RETURN u.user_id as user_id, u.nombre as nombre, u.email as email
+      `;
 
-      const result = await client.query(query, values);
-      await client.query("COMMIT");
-
-      return result.rows[0];
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
+      const result = await tx.run(query, params);
+      return result.records.length > 0 ? result.records[0].toObject() : null;
+    });
   }
 
   /**
-   * Elimina un usuario y todos sus datos relacionados (posts, comentarios) en una transacción.
+   * Elimina un usuario y todos sus datos relacionados
    */
   async deleteUser(userId) {
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-      // Se eliminan primero las dependencias (comentarios, posts)
-      await client.query("DELETE FROM comentario WHERE user_id = $1", [userId]);
-      await client.query("DELETE FROM post WHERE user_id = $1", [userId]);
-      // Finalmente se elimina el usuario
-      const result = await client.query(
-        "DELETE FROM usuario WHERE user_id = $1 RETURNING user_id",
-        [userId]
-      );
-      await client.query("COMMIT");
-      return result.rows[0];
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
+    return await runTransaction(async (tx) => {
+      // Primero eliminar todas las relaciones y nodos relacionados
+      const deleteQuery = `
+        MATCH (u:Usuario {user_id: $userId})
+        OPTIONAL MATCH (u)-[:COMENTO]->(c:Comentario)
+        OPTIONAL MATCH (u)-[:CREO]->(p:Post)
+        OPTIONAL MATCH (p)<-[:EN_POST]-(pc:Comentario)
+        DETACH DELETE u, c, p, pc
+        RETURN $userId as user_id
+      `;
+
+      const result = await tx.run(deleteQuery, { userId });
+      return result.records.length > 0 ? result.records[0].toObject() : null;
+    });
   }
 
   /**
-   * Busca posts por palabra clave en título o contenido (VERSIÓN CORREGIDA)
-   * CORRECCIÓN: La consulta ahora maneja correctamente la búsqueda con LIKE
-   * y previene inyección SQL usando parámetros.
+   * Busca posts por palabra clave en título o contenido
    */
   async searchPosts(searchTerm) {
     const query = `
-      SELECT
-        p.post_id, p.user_id, p.titulo, p.contenido, p.fecha_creacion,
-        u.nombre as autor_nombre,
-        COALESCE(
-          (
-            SELECT json_agg(
-              json_build_object(
-                'comment_id', c.comment_id,
-                'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creaciÓn",
-                'user_id', c.user_id,
-                'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creaciÓn" ASC
-            )
-            FROM comentario c
-            JOIN usuario cu ON c.user_id = cu.user_id
-            WHERE c.post_id = p.post_id
-          ),
-          '[]'::json
-        ) as comments
-      FROM post p
-      JOIN usuario u ON p.user_id = u.user_id
-      WHERE p.type_id = 1
-      AND (
-        LOWER(p.titulo) LIKE LOWER($1)
-        OR LOWER(p.contenido) LIKE LOWER($1)
-      )
+      MATCH (p:Post)
+      WHERE toLower(p.titulo) CONTAINS toLower($searchTerm)
+         OR toLower(p.contenido) CONTAINS toLower($searchTerm)
+      MATCH (autor:Usuario)-[:CREO]->(p)
+      OPTIONAL MATCH (p)<-[:EN_POST]-(comentarios:Comentario)<-[:COMENTO]-(comentarista:Usuario)
+      WITH p, autor,
+           collect({
+             comment_id: comentarios.comment_id,
+             contenido: comentarios.contenido,
+             fecha_creacion: toString(comentarios.fecha_creacion),
+             user_id: comentarista.user_id,
+             autor_nombre: comentarista.nombre
+           }) as comments
+      RETURN p.post_id as post_id,
+             p.user_id as user_id,
+             p.titulo as titulo,
+             p.contenido as contenido,
+             toString(p.fecha_creacion) as fecha_creacion,
+             autor.nombre as autor_nombre,
+             comments
       ORDER BY p.fecha_creacion DESC
     `;
-    const searchPattern = `%${searchTerm}%`;
-    const { rows } = await pool.query(query, [searchPattern]);
-    return rows;
+    const records = await runQuery(query, { searchTerm });
+    return records.map((record) => {
+      const obj = record.toObject();
+      obj.comments = obj.comments.filter((c) => c.comment_id !== null);
+      return obj;
+    });
   }
 }
 

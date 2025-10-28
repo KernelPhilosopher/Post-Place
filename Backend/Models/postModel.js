@@ -1,45 +1,41 @@
 // =============================================================================
-// Modelo de Publicación - ADAPTADO PARA SUPABASE
+// Modelo de Publicación - ADAPTADO PARA NEO4J
 // =============================================================================
 
-const pool = require("../Config/database");
+const { runQuery, runTransaction } = require("../Config/database");
 
 class PostModel {
   /**
    * Crea una nueva publicación
    */
   async create(userId, titulo, contenido) {
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-
-      // Insertar post
-      const insertQuery = `
-        INSERT INTO post (user_id, titulo, contenido, type_id)
-        VALUES ($1, $2, $3, 1)
-        RETURNING post_id, user_id, titulo, contenido, fecha_creacion;
+    return await runTransaction(async (tx) => {
+      const query = `
+        MATCH (u:Usuario {user_id: $userId})
+        CREATE (p:Post {
+          post_id: randomUUID(),
+          user_id: $userId,
+          titulo: $titulo,
+          contenido: $contenido,
+          fecha_creacion: datetime(),
+          fecha_actualizacion: datetime()
+        })
+        CREATE (u)-[:CREO]->(p)
+        RETURN p.post_id as post_id,
+               p.user_id as user_id,
+               p.titulo as titulo,
+               p.contenido as contenido,
+               toString(p.fecha_creacion) as fecha_creacion,
+               u.nombre as autor_nombre
       `;
-      const postResult = await client.query(insertQuery, [
-        userId,
-        titulo,
-        contenido,
-      ]);
-      const newPost = postResult.rows[0];
 
-      // Obtener nombre del autor
-      const authorQuery = "SELECT nombre FROM usuario WHERE user_id = $1";
-      const authorResult = await client.query(authorQuery, [userId]);
-      const autorNombre = authorResult.rows[0]?.nombre || "Usuario";
+      const result = await tx.run(query, { userId, titulo, contenido });
+      if (result.records.length === 0) return null;
 
-      await client.query("COMMIT");
-
-      return { ...newPost, autor_nombre: autorNombre, comments: [] };
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
+      const post = result.records[0].toObject();
+      post.comments = [];
+      return post;
+    });
   }
 
   /**
@@ -47,33 +43,33 @@ class PostModel {
    */
   async findAll() {
     const query = `
-      SELECT
-        p.post_id, p.user_id, p.titulo, p.contenido, p.fecha_creacion,
-        u.nombre as autor_nombre,
-        COALESCE(
-          (
-            SELECT json_agg(
-              json_build_object(
-                'comment_id', c.comment_id,
-                'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creaciÓn",
-                'user_id', c.user_id,
-                'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creaciÓn" ASC
-            )
-            FROM comentario c
-            JOIN usuario cu ON c.user_id = cu.user_id
-            WHERE c.post_id = p.post_id
-          ),
-          '[]'::json
-        ) as comments
-      FROM post p
-      JOIN usuario u ON p.user_id = u.user_id
-      WHERE p.type_id = 1
+      MATCH (autor:Usuario)-[:CREO]->(p:Post)
+      OPTIONAL MATCH (p)<-[:EN_POST]-(c:Comentario)<-[:COMENTO]-(comentarista:Usuario)
+      WITH p, autor,
+           collect({
+             comment_id: c.comment_id,
+             contenido: c.contenido,
+             fecha_creacion: toString(c.fecha_creacion),
+             user_id: comentarista.user_id,
+             autor_nombre: comentarista.nombre
+           }) as comments
+      RETURN p.post_id as post_id,
+             p.user_id as user_id,
+             p.titulo as titulo,
+             p.contenido as contenido,
+             toString(p.fecha_creacion) as fecha_creacion,
+             autor.nombre as autor_nombre,
+             comments
       ORDER BY p.fecha_creacion DESC
     `;
-    const { rows } = await pool.query(query);
-    return rows;
+
+    const records = await runQuery(query);
+    return records.map((record) => {
+      const obj = record.toObject();
+      // Filtrar comentarios null
+      obj.comments = obj.comments.filter((c) => c.comment_id !== null);
+      return obj;
+    });
   }
 
   /**
@@ -81,105 +77,88 @@ class PostModel {
    */
   async findByUserId(userId) {
     const query = `
-      SELECT
-        p.post_id, p.user_id, p.titulo, p.contenido, p.fecha_creacion,
-        u.nombre as autor_nombre,
-        COALESCE(
-          (
-            SELECT json_agg(
-              json_build_object(
-                'comment_id', c.comment_id,
-                'contenido', c.contenido,
-                'fecha_creacion', c."fecha_creaciÓn",
-                'user_id', c.user_id,
-                'autor_nombre', cu.nombre
-              ) ORDER BY c."fecha_creaciÓn" ASC
-            )
-            FROM comentario c
-            JOIN usuario cu ON c.user_id = cu.user_id
-            WHERE c.post_id = p.post_id
-          ),
-          '[]'::json
-        ) as comments
-      FROM post p
-      JOIN usuario u ON p.user_id = u.user_id
-      WHERE p.user_id = $1 AND p.type_id = 1
+      MATCH (autor:Usuario {user_id: $userId})-[:CREO]->(p:Post)
+      OPTIONAL MATCH (p)<-[:EN_POST]-(c:Comentario)<-[:COMENTO]-(comentarista:Usuario)
+      WITH p, autor,
+           collect({
+             comment_id: c.comment_id,
+             contenido: c.contenido,
+             fecha_creacion: toString(c.fecha_creacion),
+             user_id: comentarista.user_id,
+             autor_nombre: comentarista.nombre
+           }) as comments
+      RETURN p.post_id as post_id,
+             p.user_id as user_id,
+             p.titulo as titulo,
+             p.contenido as contenido,
+             toString(p.fecha_creacion) as fecha_creacion,
+             autor.nombre as autor_nombre,
+             comments
       ORDER BY p.fecha_creacion DESC
     `;
-    const { rows } = await pool.query(query, [userId]);
-    return rows;
+
+    const records = await runQuery(query, { userId });
+    return records.map((record) => {
+      const obj = record.toObject();
+      obj.comments = obj.comments.filter((c) => c.comment_id !== null);
+      return obj;
+    });
   }
 
   /**
    * Actualiza una publicación
    */
   async update(postId, userId, contenido) {
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-
-      const updateQuery = `
-        UPDATE post
-        SET contenido = $1, fecha_actualizacion = NOW()
-        WHERE post_id = $2 AND user_id = $3
-        RETURNING post_id, user_id, titulo, contenido, fecha_creacion;
+    return await runTransaction(async (tx) => {
+      const query = `
+        MATCH (u:Usuario {user_id: $userId})-[:CREO]->(p:Post {post_id: $postId})
+        SET p.contenido = $contenido,
+            p.fecha_actualizacion = datetime()
+        WITH p, u
+        OPTIONAL MATCH (p)<-[:EN_POST]-(c:Comentario)<-[:COMENTO]-(comentarista:Usuario)
+        WITH p, u,
+             collect({
+               comment_id: c.comment_id,
+               contenido: c.contenido,
+               fecha_creacion: toString(c.fecha_creacion),
+               user_id: comentarista.user_id,
+               autor_nombre: comentarista.nombre
+             }) as comments
+        RETURN p.post_id as post_id,
+               p.user_id as user_id,
+               p.titulo as titulo,
+               p.contenido as contenido,
+               toString(p.fecha_creacion) as fecha_creacion,
+               u.nombre as autor_nombre,
+               comments
       `;
-      const updateResult = await client.query(updateQuery, [
-        contenido,
-        postId,
-        userId,
-      ]);
 
-      if (updateResult.rows.length === 0) {
-        await client.query("ROLLBACK");
-        return null;
-      }
+      const result = await tx.run(query, { postId, userId, contenido });
+      if (result.records.length === 0) return null;
 
-      const updatedPost = updateResult.rows[0];
-
-      // Obtener nombre del autor
-      const authorQuery = "SELECT nombre FROM usuario WHERE user_id = $1";
-      const authorResult = await client.query(authorQuery, [userId]);
-      const autorNombre = authorResult.rows[0]?.nombre || "Usuario";
-
-      // Obtener comentarios
-      const commentsQuery = `
-        SELECT
-          c.comment_id, c.contenido, c."fecha_creaciÓn" as fecha_creacion,
-          c.user_id, cu.nombre as autor_nombre
-        FROM comentario c
-        JOIN usuario cu ON c.user_id = cu.user_id
-        WHERE c.post_id = $1
-        ORDER BY c."fecha_creaciÓn" ASC
-      `;
-      const commentsResult = await client.query(commentsQuery, [postId]);
-
-      await client.query("COMMIT");
-
-      return {
-        ...updatedPost,
-        autor_nombre: autorNombre,
-        comments: commentsResult.rows,
-      };
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
+      const post = result.records[0].toObject();
+      post.comments = post.comments.filter((c) => c.comment_id !== null);
+      return post;
+    });
   }
 
   /**
    * Elimina una publicación
    */
   async remove(postId, userId) {
-    const query = `
-      DELETE FROM post
-      WHERE post_id = $1 AND user_id = $2
-      RETURNING post_id;
-    `;
-    const { rows } = await pool.query(query, [postId, userId]);
-    return rows[0] ? rows[0].post_id : null;
+    return await runTransaction(async (tx) => {
+      const query = `
+        MATCH (u:Usuario {user_id: $userId})-[:CREO]->(p:Post {post_id: $postId})
+        OPTIONAL MATCH (p)<-[:EN_POST]-(c:Comentario)
+        DETACH DELETE p, c
+        RETURN $postId as post_id
+      `;
+
+      const result = await tx.run(query, { postId, userId });
+      return result.records.length > 0
+        ? result.records[0].get("post_id")
+        : null;
+    });
   }
 }
 

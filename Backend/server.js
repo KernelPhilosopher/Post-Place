@@ -1,5 +1,5 @@
 // =============================================================================
-// Servidor Principal - CONFIGURADO PARA PRODUCCIÓN
+// Servidor Principal - CONFIGURADO PARA NEO4J Y PRODUCCIÓN
 // =============================================================================
 
 const http = require("http");
@@ -11,33 +11,31 @@ const cors = require("cors");
 const authRoutes = require("./Routes/authRoutes");
 const postRoutes = require("./Routes/postRoutes");
 const userRoutes = require("./Routes/userRoutes");
-const commentRoutes = require("./Routes/commentRoutes"); // NUEVA RUTA
+const commentRoutes = require("./Routes/commentRoutes");
 const initializeSocketManager = require("./Sockets/socketsManager");
+const { closeDriver } = require("./Config/database");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS configurado para producción - MÁS PERMISIVO
+// CORS configurado para producción
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
       "http://localhost:3000",
       "http://localhost:5173",
       "https://post-place-backend-ayf9.onrender.com",
-      "https://post-place-front.netlify.app", // sin la barra final
+      "https://post-place-front.netlify.app",
     ];
 
-    // Permitir requests sin origin (health checks, Postman, etc.)
     if (!origin) {
       return callback(null, true);
     }
 
-    // En desarrollo, ser más permisivo
     if (process.env.NODE_ENV !== "production") {
       return callback(null, true);
     }
 
-    // Permitir subdominios de render.com y netlify.app
     if (origin.includes("onrender.com") || origin.includes("netlify.app")) {
       return callback(null, true);
     }
@@ -56,10 +54,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Ruta de health check para monitoreo
+// Ruta de health check
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "OK",
+    database: "Neo4j AuraDB",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
   });
@@ -69,7 +68,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/comments", commentRoutes); // USAR NUEVA RUTA
+app.use("/api/comments", commentRoutes);
 
 // Middleware de manejo de errores
 app.use((error, req, res, next) => {
@@ -84,7 +83,7 @@ app.use((error, req, res, next) => {
 // Crear servidor HTTP
 const server = http.createServer(app);
 
-// Inicializar Socket.IO con CORS configurado
+// Inicializar Socket.IO
 const io = initializeSocketManager(server, corsOptions);
 app.set("io", io);
 
@@ -93,6 +92,7 @@ server.listen(PORT, "0.0.0.0", () => {
   console.log("🚀 ========================================");
   console.log(`🟢 Servidor ejecutándose en puerto ${PORT}`);
   console.log(`🔗 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`📊 Database: Neo4j AuraDB`);
   console.log("🚀 ========================================");
 });
 
@@ -107,8 +107,18 @@ process.on("uncaughtException", (error) => {
 });
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
   console.log("SIGTERM recibido. Cerrando servidor...");
+  await closeDriver();
+  server.close(() => {
+    console.log("Servidor cerrado.");
+    process.exit(0);
+  });
+});
+
+process.on("SIGINT", async () => {
+  console.log("\nSIGINT recibido. Cerrando servidor...");
+  await closeDriver();
   server.close(() => {
     console.log("Servidor cerrado.");
     process.exit(0);

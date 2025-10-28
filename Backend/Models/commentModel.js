@@ -1,54 +1,50 @@
 // =============================================================================
-// Modelo de Comentario - ADAPTADO PARA SUPABASE (CON UPDATE Y DELETE)
+// Modelo de Comentario - ADAPTADO PARA NEO4J (COMPLETO)
 // =============================================================================
 
-const pool = require("../Config/database");
+const { runQuery, runTransaction } = require("../Config/database");
 
 class CommentModel {
   /**
    * Crea un nuevo comentario
    */
   async create(postId, userId, contenido) {
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-
-      // Verificar que el post existe
-      const postCheck = await client.query(
-        "SELECT post_id FROM post WHERE post_id = $1",
-        [postId]
+    return await runTransaction(async (tx) => {
+      // Primero verificar que el post existe
+      const checkPost = await tx.run(
+        "MATCH (p:Post {post_id: $postId}) RETURN p",
+        { postId }
       );
-      if (postCheck.rows.length === 0) {
+
+      if (checkPost.records.length === 0) {
         throw new Error("El post especificado no existe");
       }
 
-      // Insertar comentario
-      const insertQuery = `
-        INSERT INTO comentario (post_id, user_id, contenido)
-        VALUES ($1, $2, $3)
-        RETURNING comment_id, post_id, user_id, contenido, "fecha_creaciÓn" as fecha_creacion;
+      // Crear el comentario y sus relaciones
+      const query = `
+        MATCH (p:Post {post_id: $postId})
+        MATCH (u:Usuario {user_id: $userId})
+        CREATE (c:Comentario {
+          comment_id: randomUUID(),
+          post_id: $postId,
+          user_id: $userId,
+          contenido: $contenido,
+          fecha_creacion: datetime(),
+          fecha_actualizacion: datetime()
+        })
+        CREATE (u)-[:COMENTO]->(c)
+        CREATE (c)-[:EN_POST]->(p)
+        RETURN c.comment_id as comment_id,
+               c.post_id as post_id,
+               c.user_id as user_id,
+               c.contenido as contenido,
+               toString(c.fecha_creacion) as fecha_creacion,
+               u.nombre as autor_nombre
       `;
-      const commentResult = await client.query(insertQuery, [
-        postId,
-        userId,
-        contenido,
-      ]);
-      const newComment = commentResult.rows[0];
 
-      // Obtener nombre del autor
-      const authorQuery = "SELECT nombre FROM usuario WHERE user_id = $1";
-      const authorResult = await client.query(authorQuery, [userId]);
-      const autorNombre = authorResult.rows[0]?.nombre || "Usuario";
-
-      await client.query("COMMIT");
-
-      return { ...newComment, autor_nombre: autorNombre };
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
+      const result = await tx.run(query, { postId, userId, contenido });
+      return result.records.length > 0 ? result.records[0].toObject() : null;
+    });
   }
 
   /**
@@ -56,43 +52,22 @@ class CommentModel {
    * SOLO el autor del comentario puede actualizarlo.
    */
   async update(commentId, userId, contenido) {
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-      const updateQuery = `
-        UPDATE comentario
-        SET contenido = $1, "fecha_actualizaciÓn" = NOW()
-        WHERE comment_id = $2 AND user_id = $3
-        RETURNING comment_id, post_id, user_id, contenido, "fecha_creaciÓn" as fecha_creacion;
+    return await runTransaction(async (tx) => {
+      const query = `
+        MATCH (u:Usuario {user_id: $userId})-[:COMENTO]->(c:Comentario {comment_id: $commentId})
+        SET c.contenido = $contenido,
+            c.fecha_actualizacion = datetime()
+        RETURN c.comment_id as comment_id,
+               c.post_id as post_id,
+               c.user_id as user_id,
+               c.contenido as contenido,
+               toString(c.fecha_creacion) as fecha_creacion,
+               u.nombre as autor_nombre
       `;
-      const result = await client.query(updateQuery, [
-        contenido,
-        commentId,
-        userId,
-      ]);
 
-      if (result.rows.length === 0) {
-        await client.query("ROLLBACK");
-        return null; // No se actualizó nada (no encontrado o sin permiso)
-      }
-
-      const updatedComment = result.rows[0];
-
-      // Obtener nombre del autor para consistencia de datos
-      const authorQuery = "SELECT nombre FROM usuario WHERE user_id = $1";
-      const authorResult = await client.query(authorQuery, [
-        updatedComment.user_id,
-      ]);
-      const autorNombre = authorResult.rows[0]?.nombre || "Usuario";
-
-      await client.query("COMMIT");
-      return { ...updatedComment, autor_nombre: autorNombre };
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
+      const result = await tx.run(query, { commentId, userId, contenido });
+      return result.records.length > 0 ? result.records[0].toObject() : null;
+    });
   }
 
   /**
@@ -100,13 +75,18 @@ class CommentModel {
    * SOLO el autor del comentario puede eliminarlo.
    */
   async remove(commentId, userId) {
-    const query = `
-      DELETE FROM comentario
-      WHERE comment_id = $1 AND user_id = $2
-      RETURNING comment_id, post_id;
-    `;
-    const { rows } = await pool.query(query, [commentId, userId]);
-    return rows[0] ? rows[0] : null; // Devuelve { comment_id, post_id } o null
+    return await runTransaction(async (tx) => {
+      const query = `
+        MATCH (u:Usuario {user_id: $userId})-[:COMENTO]->(c:Comentario {comment_id: $commentId})
+        WITH c.comment_id as comment_id, c.post_id as post_id
+        MATCH (c2:Comentario {comment_id: comment_id})
+        DETACH DELETE c2
+        RETURN comment_id, post_id
+      `;
+
+      const result = await tx.run(query, { commentId, userId });
+      return result.records.length > 0 ? result.records[0].toObject() : null;
+    });
   }
 }
 
