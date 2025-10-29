@@ -1,12 +1,12 @@
 // =============================================================================
-// Modelo de Comentario - ADAPTADO PARA NEO4J (COMPLETO)
+// Modelo de Comentario - CORREGIDO PARA NEO4J
 // =============================================================================
 
 const { runQuery, runTransaction } = require("../Config/database");
 
 class CommentModel {
   /**
-   * Crea un nuevo comentario
+   * Crea un nuevo comentario - CORREGIDO: randomuuid()
    */
   async create(postId, userId, contenido) {
     return await runTransaction(async (tx) => {
@@ -25,7 +25,7 @@ class CommentModel {
         MATCH (p:Post {post_id: $postId})
         MATCH (u:Usuario {user_id: $userId})
         CREATE (c:Comentario {
-          comment_id: randomUUID(),
+          comment_id: randomuuid(),
           post_id: $postId,
           user_id: $userId,
           contenido: $contenido,

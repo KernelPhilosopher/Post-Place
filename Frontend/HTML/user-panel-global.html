@@ -12,6 +12,7 @@
       rel="stylesheet"
     />
   </head>
+
   <body>
     <header class="dashboard-header">
       <div class="container">
@@ -20,6 +21,8 @@
           <span class="user-name"></span>
         </div>
         <div class="header-actions">
+          <!-- NUEVO: Botón para ir a página de amigos -->
+          <a href="friends.html" class="friends-btn">👥 Amigos</a>
           <button class="config-btn">⚙️ Configuración</button>
           <button class="logout-btn">Cerrar Sesión</button>
         </div>
@@ -62,7 +65,7 @@
 
         <!-- Formulario de posts -->
         <section class="post-form-card">
-          <form id="post-form">
+          <form id="post-form" enctype="multipart/form-data">
             <input
               type="text"
               id="post-title"
@@ -74,6 +77,21 @@
               placeholder="¿Qué estás pensando?"
               required
             ></textarea>
+
+            <div
+              id="image-preview-wrap"
+              style="display: none; margin-top: 10px"
+            >
+              <img id="image-preview" alt="Vista previa" />
+            </div>
+
+            <input
+              type="file"
+              id="post-image"
+              accept="image/*"
+              style="margin-top: 10px"
+            />
+
             <button type="submit" id="post-submit-btn">Publicar</button>
           </form>
         </section>
@@ -137,7 +155,7 @@
       </div>
     </div>
 
-    <!-- NUEVO: Modal de edición de COMENTARIOS -->
+    <!-- Modal de edición de COMENTARIOS -->
     <div id="comment-edit-modal" class="modal-overlay">
       <div class="modal-content">
         <h3>Editar Comentario</h3>

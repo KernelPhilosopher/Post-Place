@@ -1,5 +1,5 @@
 // =============================================================================
-// Modelo de Usuario - ADAPTADO PARA NEO4J
+// Modelo de Usuario - CORREGIDO PARA NEO4J
 // =============================================================================
 
 const { runQuery, runTransaction } = require("../Config/database");
@@ -42,12 +42,12 @@ class UserModel {
   }
 
   /**
-   * Crea un nuevo usuario
+   * Crea un nuevo usuario - CORREGIDO: randomuuid() en minúsculas
    */
   async create(nombre, email, hashedPassword) {
     const query = `
       CREATE (u:Usuario {
-        user_id: randomUUID(),
+        user_id: randomuuid(),
         nombre: $nombre,
         email: $email,
         contraseña: $hashedPassword,
@@ -85,6 +85,7 @@ class UserModel {
              p.user_id as user_id,
              p.titulo as titulo,
              p.contenido as contenido,
+             p.imageUrl as imageUrl,
              toString(p.fecha_creacion) as fecha_creacion,
              autor.nombre as autor_nombre,
              comments
@@ -93,7 +94,6 @@ class UserModel {
     const records = await runQuery(query, { userId });
     return records.map((record) => {
       const obj = record.toObject();
-      // Filtrar comentarios null
       obj.comments = obj.comments.filter((c) => c.comment_id !== null);
       return obj;
     });
@@ -143,7 +143,6 @@ class UserModel {
    */
   async deleteUser(userId) {
     return await runTransaction(async (tx) => {
-      // Primero eliminar todas las relaciones y nodos relacionados
       const deleteQuery = `
         MATCH (u:Usuario {user_id: $userId})
         OPTIONAL MATCH (u)-[:COMENTO]->(c:Comentario)
@@ -180,6 +179,7 @@ class UserModel {
              p.user_id as user_id,
              p.titulo as titulo,
              p.contenido as contenido,
+             p.imageUrl as imageUrl,
              toString(p.fecha_creacion) as fecha_creacion,
              autor.nombre as autor_nombre,
              comments

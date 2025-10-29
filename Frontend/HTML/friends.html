@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amigos | Post-Place</title>
+    <link rel="stylesheet" href="../CSS/friends.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="container">
+        <div class="user-info">
+          <div class="user-avatar"></div>
+          <span class="user-name"></span>
+        </div>
+        <div class="header-actions">
+          <a href="user-panel-global.html" class="back-btn"
+            >⬅️ Volver al Dashboard</a
+          >
+          <button class="config-btn">⚙️ Configuración</button>
+          <button class="logout-btn">Cerrar Sesión</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <!-- Estadísticas -->
+        <section class="stats-section">
+          <div class="stat-card">
+            <div class="stat-number" id="total-friends">0</div>
+            <div class="stat-label">Amigos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="pending-requests">0</div>
+            <div class="stat-label">Solicitudes Pendientes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="sent-requests">0</div>
+            <div class="stat-label">Solicitudes Enviadas</div>
+          </div>
+        </section>
+
+        <!-- Barra de búsqueda de usuarios -->
+        <section class="search-section">
+          <h2>Buscar Usuarios</h2>
+          <div class="search-container">
+            <input
+              type="text"
+              id="user-search-input"
+              placeholder="Buscar usuarios por nombre o email..."
+            />
+            <button id="user-search-btn">🔍 Buscar</button>
+          </div>
+          <div id="user-search-results" class="search-results"></div>
+        </section>
+
+        <!-- Pestañas -->
+        <div class="tabs-switcher">
+          <input type="radio" id="tab-friends" name="tab" checked />
+          <label for="tab-friends">Mis Amigos</label>
+
+          <input type="radio" id="tab-pending" name="tab" />
+          <label for="tab-pending">Solicitudes Recibidas</label>
+
+          <input type="radio" id="tab-sent" name="tab" />
+          <label for="tab-sent">Solicitudes Enviadas</label>
+        </div>
+
+        <!-- Vista de Mis Amigos -->
+        <section id="friends-tab" class="tab-content active">
+          <h2>Mis Amigos</h2>
+          <div id="friends-list" class="user-cards-container"></div>
+          <p
+            id="no-friends-message"
+            class="no-data-message"
+            style="display: none"
+          >
+            Aún no tienes amigos. ¡Busca usuarios y envíales solicitudes!
+          </p>
+        </section>
+
+        <!-- Vista de Solicitudes Recibidas -->
+        <section id="pending-tab" class="tab-content">
+          <h2>Solicitudes Recibidas</h2>
+          <div id="pending-requests-list" class="user-cards-container"></div>
+          <p
+            id="no-pending-message"
+            class="no-data-message"
+            style="display: none"
+          >
+            No tienes solicitudes de amistad pendientes.
+          </p>
+        </section>
+
+        <!-- Vista de Solicitudes Enviadas -->
+        <section id="sent-tab" class="tab-content">
+          <h2>Solicitudes Enviadas</h2>
+          <div id="sent-requests-list" class="user-cards-container"></div>
+          <p id="no-sent-message" class="no-data-message" style="display: none">
+            No has enviado solicitudes de amistad.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <!-- Modal de Configuración (reutilizado) -->
+    <div id="config-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Configuración de Cuenta</h3>
+        <form id="config-form">
+          <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" id="config-name" />
+          </div>
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="config-email" />
+          </div>
+          <div class="form-group">
+            <label>Contraseña Actual:</label>
+            <input type="password" id="config-current-password" />
+          </div>
+          <div class="form-group">
+            <label>Nueva Contraseña:</label>
+            <input type="password" id="config-new-password" />
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              id="cancel-config-btn"
+              class="modal-btn cancel-btn"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="modal-btn save-btn">
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="../JS/config.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="../JS/friends.js"></script>
+  </body>
+</html>
