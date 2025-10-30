@@ -547,3 +547,95 @@ main {
     justify-content: center;
   }
 }
+
+/* Ajustes para tablets (pantallas medianas) */
+@media (max-width: 992px) {
+  .container {
+    padding: 0 15px;
+  }
+
+  .dashboard-header .container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .user-info {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .search-container {
+    flex-direction: column;
+  }
+
+  #user-search-btn {
+    width: 100%;
+  }
+}
+
+/* Ajustes para móviles */
+@media (max-width: 600px) {
+  body {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-header {
+    padding: 0.75rem 0;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+
+  .stat-card {
+    padding: 1.2rem;
+  }
+
+  .search-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .tabs-switcher {
+    padding: 5px;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .tabs-switcher label {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
+  .user-cards-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .user-card {
+    padding: 1rem;
+  }
+
+  .user-card-avatar {
+    width: 45px;
+    height: 45px;
+    font-size: 1rem;
+  }
+
+  .action-btn {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+}

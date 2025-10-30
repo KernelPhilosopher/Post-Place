@@ -618,17 +618,19 @@ main {
   object-fit: contain;
   border: 1px solid #2b324e;
 }
-.post-image { margin-top: 10px; display: flex; justify-content: center; }
+.post-image {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
 .post-image img {
   max-width: 100%;
   max-height: 400px;
   object-fit: contain;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,.25);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 
- block;
-}
 /* Layout del formulario de comentarios */
 .comment-form {
   display: flex;
@@ -647,7 +649,9 @@ main {
   padding: 12px 16px;
   outline: none;
 }
-.comment-text::placeholder { color: #9aa3bd; }
+.comment-text::placeholder {
+  color: #9aa3bd;
+}
 
 /* Botón custom para archivo */
 .comment-file {
@@ -664,7 +668,7 @@ main {
 }
 
 /* Oculta el input de archivo nativo */
-.comment-file > input[type="file"] { 
+.comment-file > input[type="file"] {
   display: none;
 }
 
@@ -691,20 +695,159 @@ main {
   padding: 10px 18px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform .02s ease, background .2s ease;
+  transition: transform 0.02s ease, background 0.2s ease;
 }
-.comment-send-btn:hover { background: #ff6276; }
-.comment-send-btn:active { transform: translateY(1px); }
+.comment-send-btn:hover {
+  background: #ff6276;
+}
+.comment-send-btn:active {
+  transform: translateY(1px);
+}
 
 /* Responsivo: cuando no quepa en una línea */
 @media (max-width: 720px) {
-  .comment-form { 
-    flex-wrap: wrap; 
+  .comment-form {
+    flex-wrap: wrap;
     gap: 10px;
   }
-  .comment-send-btn { 
-    margin-left: auto; 
+  .comment-send-btn {
+    margin-left: auto;
   }
 }
-.post-image { margin-top: 10px; text-align: center; }
-.post-image img { max-width: 100%; max-height: 420px; object-fit: contain; border-radius: 10px; }
+.post-image {
+  margin-top: 10px;
+  text-align: center;
+}
+.post-image img {
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+/* -------------------- RESPONSIVE DESIGN -------------------- */
+
+/* Laptop o pantallas medianas */
+@media (max-width: 992px) {
+  .container {
+    padding: 0 15px;
+  }
+
+  .dashboard-header .container {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  #search-input {
+    font-size: 0.95rem;
+  }
+
+  .post-form-card {
+    padding: 1.5rem;
+  }
+
+  .post-title {
+    font-size: 1.1rem;
+  }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  .user-info {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+
+  .view-switcher {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .search-container {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  #search-btn,
+  #clear-search-btn {
+    width: 100%;
+  }
+
+  .post-card {
+    padding: 1rem;
+  }
+
+  .post-content p {
+    font-size: 0.95rem;
+  }
+
+  .post-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .comment-form {
+    flex-wrap: wrap;
+  }
+
+  .comment-send-btn {
+    width: 100%;
+  }
+}
+
+/* Celulares */
+@media (max-width: 480px) {
+  .dashboard-header {
+    padding: 0.8rem 0;
+  }
+
+  .config-btn,
+  .logout-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+
+  #search-input {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+  }
+
+  #search-btn,
+  #clear-search-btn {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  .post-title {
+    font-size: 1rem;
+  }
+
+  .post-meta {
+    font-size: 0.75rem;
+  }
+
+  .comment-content {
+    font-size: 0.85rem;
+  }
+
+  .comment-file-name {
+    max-width: 120px;
+  }
+
+  .post-form-card button {
+    font-size: 0.9rem;
+    padding: 10px 16px;
+  }
+}

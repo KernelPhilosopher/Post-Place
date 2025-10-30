@@ -243,12 +243,96 @@ body {
   font-size: 12px;
 }
 
+/* --- RESPONSIVIDAD --- */
+
+/* Tablets grandes y medianas */
+@media (max-width: 992px) {
+  .auth-container {
+    max-width: 90%;
+    min-height: 420px;
+  }
+
+  .form {
+    padding: 0 30px;
+  }
+
+  .form__title {
+    font-size: 1.4rem;
+  }
+
+  .button {
+    padding: 10px 35px;
+  }
+}
+
+/* Tablets pequeñas y móviles grandes */
 @media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column;
+    min-height: auto;
+    height: auto;
+    box-shadow: none;
+  }
+
   .auth-container__overlay-container {
     display: none;
   }
 
   .auth-container__form-container {
+    position: relative;
     width: 100%;
+    height: auto;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .form {
+    padding: 2rem 1.5rem;
+  }
+
+  .button {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .form__input {
+    font-size: 0.95rem;
+  }
+
+  .form__title {
+    font-size: 1.3rem;
+  }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .auth-container {
+    border-radius: 8px;
+    min-height: 380px;
+  }
+
+  .form {
+    padding: 1.5rem 1rem;
+  }
+
+  .form__input {
+    padding: 10px 12px;
+  }
+
+  .button {
+    font-size: 11px;
+    padding: 10px;
+  }
+
+  .form__title {
+    font-size: 1.2rem;
+  }
+
+  .text {
+    font-size: 13px;
   }
 }
