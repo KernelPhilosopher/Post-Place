@@ -193,22 +193,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
+    const getCount = (value) => {
+      if (Array.isArray(value)) return value.length;
+      if (typeof value === "object" && value !== null) {
+        const keys = Object.keys(value);
+        const first = value[keys[0]];
+        return typeof first === "number" ? first : 0;
+      }
+      return typeof value === "number" ? value : 0;
+    };
+
     // --- CARGAR DATOS ---
     const loadStats = async () => {
       try {
         const stats = await fetchWithAuth(`${API_URL}/friends/stats`);
         console.log("Stats recibidas:", stats);
-        totalFriendsEl.textContent = Array.isArray(stats.total_amigos)
-          ? stats.total_amigos.length
-          : stats.total_amigos || 0;
 
-        pendingRequestsEl.textContent = Array.isArray(stats.solicitudes_recibidas)
-          ? stats.solicitudes_recibidas.length
-          : stats.solicitudes_recibidas || 0;
-
-        sentRequestsEl.textContent = Array.isArray(stats.solicitudes_enviadas)
-          ? stats.solicitudes_enviadas.length
-          : stats.solicitudes_enviadas || 0;
+        totalFriendsEl.textContent = getCount(stats.total_amigos);
+        pendingRequestsEl.textContent = getCount(stats.solicitudes_recibidas);
+        sentRequestsEl.textContent = getCount(stats.solicitudes_enviadas);
       } catch (error) {
         console.error("Error cargando estadísticas:", error);
       }
