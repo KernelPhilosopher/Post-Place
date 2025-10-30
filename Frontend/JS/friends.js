@@ -197,9 +197,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const loadStats = async () => {
       try {
         const stats = await fetchWithAuth(`${API_URL}/friends/stats`);
-        totalFriendsEl.textContent = stats.total_amigos || 0;
-        pendingRequestsEl.textContent = stats.solicitudes_recibidas || 0;
-        sentRequestsEl.textContent = stats.solicitudes_enviadas || 0;
+        totalFriendsEl.textContent = Array.isArray(stats.total_amigos)
+          ? stats.total_amigos.length
+          : stats.total_amigos || 0;
+
+        pendingRequestsEl.textContent = Array.isArray(stats.solicitudes_recibidas)
+          ? stats.solicitudes_recibidas.length
+          : stats.solicitudes_recibidas || 0;
+
+        sentRequestsEl.textContent = Array.isArray(stats.solicitudes_enviadas)
+          ? stats.solicitudes_enviadas.length
+          : stats.solicitudes_enviadas || 0;
       } catch (error) {
         console.error("Error cargando estadísticas:", error);
       }
