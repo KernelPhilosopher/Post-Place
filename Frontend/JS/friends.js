@@ -194,9 +194,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // --- CARGAR DATOS ---
-    const loadStats = async () => {
+   const loadStats = async () => {
       try {
-        const stats = await fetchWithAuth(`${API_URL}/friends/stats`);
+        // 1. Obtener el objeto Response
+        const response = await fetchWithAuth(`${API_URL}/friends/stats`);
+
+        // 2. Convertir el cuerpo de la respuesta a un objeto JSON con los datos
+        const stats = await response.json(); 
+    
+        // 3. Acceder a las propiedades del objeto para obtener los números
         totalFriendsEl.textContent = stats.total_amigos || 0;
         pendingRequestsEl.textContent = stats.solicitudes_recibidas || 0;
         sentRequestsEl.textContent = stats.solicitudes_enviadas || 0;
