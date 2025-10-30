@@ -197,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loadStats = async () => {
       try {
         const stats = await fetchWithAuth(`${API_URL}/friends/stats`);
+        console.log("Stats recibidas:", stats);
         totalFriendsEl.textContent = Array.isArray(stats.total_amigos)
           ? stats.total_amigos.length
           : stats.total_amigos || 0;
