@@ -48,7 +48,7 @@ class CommentModel {
   }
 
   /**
-   * Actualiza un comentario existente - ✅ CON LOGS
+   * Actualiza un comentario existente
    */
   async update(commentId, userId, contenido) {
     console.log("🔍 Intentando actualizar comentario:", {
@@ -85,7 +85,7 @@ class CommentModel {
   }
 
   /**
-   * Elimina un comentario - ✅ CON LOGS
+   * Elimina un comentario
    */
   async remove(commentId, userId) {
     console.log("🗑️ Intentando eliminar comentario:", { commentId, userId });

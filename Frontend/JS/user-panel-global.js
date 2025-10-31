@@ -12,12 +12,17 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       logged = JSON.parse(localStorage.getItem("loggedInUser") || "null");
       token = localStorage.getItem("authToken") || null;
-    } catch (_) { /* ignore */ }
+    } catch (_) {
+      /* ignore */
+    }
 
     // Si no hay sesión:
     if (!logged) {
       // Autologin de desarrollo cuando estás en localhost
-      if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+      if (
+        location.hostname === "localhost" ||
+        location.hostname === "127.0.0.1"
+      ) {
         logged = { user_id: 999, nombre: "Dev", email: "dev@local" };
         localStorage.setItem("loggedInUser", JSON.stringify(logged));
         if (!localStorage.getItem("authToken")) {
@@ -49,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const postForm = document.getElementById("post-form");
     const postTitleInput = document.getElementById("post-title");
     const postTextarea = document.getElementById("post-textarea");
-    // --- NUEVO: imagen opcional ---
     const postImageInput = document.getElementById("post-image");
     const previewWrap = document.getElementById("image-preview-wrap");
     const previewImg = document.getElementById("image-preview");
@@ -58,7 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const globalChatList = document.getElementById("global-chat-list");
     const searchResultsList = document.getElementById("search-results-list");
     const viewRadios = document.querySelectorAll('input[name="view"]');
-    const searchResultsLabel = document.querySelector('label[for="view-search-results"]');
+    const searchResultsLabel = document.querySelector(
+      'label[for="view-search-results"]'
+    );
     const searchInput = document.getElementById("search-input");
     const searchBtn = document.getElementById("search-btn");
     const clearSearchBtn = document.getElementById("clear-search-btn");
@@ -73,9 +79,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Modales de Comentarios
     const commentEditModal = document.getElementById("comment-edit-modal");
-    const commentEditTextarea = document.getElementById("comment-edit-textarea");
+    const commentEditTextarea = document.getElementById(
+      "comment-edit-textarea"
+    );
     const commentSaveEditBtn = document.getElementById("comment-save-edit-btn");
-    const commentCancelEditBtn = document.getElementById("comment-cancel-edit-btn");
+    const commentCancelEditBtn = document.getElementById(
+      "comment-cancel-edit-btn"
+    );
     let commentToEditId = null;
 
     // Configuración
@@ -91,7 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- INICIALIZACIÓN ---
     const initializeDashboard = () => {
       userNameDisplay.textContent = LOGGED_IN_USER.nombre;
-      userAvatarDisplay.textContent = LOGGED_IN_USER.nombre.substring(0, 1).toUpperCase();
+      userAvatarDisplay.textContent = LOGGED_IN_USER.nombre
+        .substring(0, 1)
+        .toUpperCase();
       loadPostsForCurrentView();
     };
 
@@ -99,7 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const getHexColor = (str) => {
       if (!str) return "CCCCCC";
       let hash = 0;
-      for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      for (let i = 0; i < str.length; i++)
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
       let color = (hash & 0x00ffffff).toString(16).toUpperCase();
       return "00000".substring(0, 6 - color.length) + color;
     };
@@ -134,12 +147,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-
     // --- RENDERIZADO ---
     const createCommentHTML = (comment) => {
       const authorName = comment.autor_nombre || "Desconocido";
       const isMyComment = comment.user_id === LOGGED_IN_USER.user_id;
-      const authorTag = isMyComment ? `<span class="comment-author-you">(Tú)</span>` : "";
+      const authorTag = isMyComment
+        ? `<span class="comment-author-you">(Tú)</span>`
+        : "";
       const actionsHTML = isMyComment
         ? `
       <div class="comment-actions">
@@ -154,16 +168,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
       return `
       <div class="comment-card" data-comment-id="${comment.comment_id}">
-        <div class="comment-avatar" style="background-color: #${getHexColor(authorName)}">${authorName.substring(0, 1).toUpperCase()}</div>
+        <div class="comment-avatar" style="background-color: #${getHexColor(
+          authorName
+        )}">${authorName.substring(0, 1).toUpperCase()}</div>
         <div class="comment-body">
           <div>
             <span class="comment-author">${authorName} ${authorTag}</span>
-            <p class="comment-content">${(comment.contenido || "").replace(/\n/g, "<br>")}</p>
+            <p class="comment-content">${(comment.contenido || "").replace(
+              /\n/g,
+              "<br>"
+            )}</p>
           </div>
           ${actionsHTML}
         </div>
       </div>`;
     };
+
     const STATIC_ORIGIN = API_URL.replace(/\/api\/?$/i, "");
     const buildImageSrc = (rawUrl) => {
       if (!rawUrl) return null;
@@ -184,7 +204,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const createPostCardHTML = (post) => {
       const authorName = post.autor_nombre || "Desconocido";
       const isMyPost = post.user_id === LOGGED_IN_USER.user_id;
-      const authorTag = isMyPost ? `<span class="post-author-you">(Tú)</span>` : "";
+      const authorTag = isMyPost
+        ? `<span class="post-author-you">(Tú)</span>`
+        : "";
 
       const actionsHTML = isMyPost
         ? `
@@ -214,12 +236,16 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<div class="post-image"><img src="${imgSrc}" alt="imagen del post" /></div>`
         : "";
 
-      const commentsHTML = (post.comments || []).map(createCommentHTML).join("");
+      const commentsHTML = (post.comments || [])
+        .map(createCommentHTML)
+        .join("");
 
       return `
     <div class="post-card" data-post-id="${post.post_id}">
       <div class="post-header">
-        <div class="post-avatar" style="background-color: #${getHexColor(authorName)}">
+        <div class="post-avatar" style="background-color: #${getHexColor(
+          authorName
+        )}">
           ${authorName.substring(0, 1).toUpperCase()}
         </div>
         <span class="post-author">${authorName} ${authorTag}</span>
@@ -233,7 +259,9 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
 
       <div class="post-footer">
-        <span class="post-meta">${new Date(post.fecha_creacion).toLocaleString()}</span>
+        <span class="post-meta">${new Date(
+          post.fecha_creacion
+        ).toLocaleString()}</span>
         <div class="post-actions">${actionsHTML}</div>
       </div>
 
@@ -247,26 +275,84 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>`;
     };
 
-
     const renderPosts = (posts, listElement, noPostsElementId) => {
-      listElement.innerHTML = posts.length > 0 ? posts.map(createPostCardHTML).join("") : "";
+      listElement.innerHTML =
+        posts.length > 0 ? posts.map(createPostCardHTML).join("") : "";
       const noEl = document.getElementById(noPostsElementId);
       if (noEl) noEl.style.display = posts.length === 0 ? "block" : "none";
     };
 
-    // Preview al elegir archivo
-    if (postImageInput) {
-      postImageInput.addEventListener("change", (e) => {
-        const f = e.target.files?.[0];
-        if (!f) { previewWrap.style.display = "none"; previewImg.src = ""; return; }
-        const ok = ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(f.type);
-        if (!ok) { alert("Solo imágenes (jpg, png, webp, gif)"); postImageInput.value = ""; return; }
-        previewImg.src = URL.createObjectURL(f);
-        previewWrap.style.display = "block";
-      });
+    // --- MANEJO DE IMAGEN CON PREVIEW ---
+    function resetImagePreview() {
+      if (previewWrap) previewWrap.style.display = "none";
+      if (previewImg) previewImg.src = "";
+      if (postImageInput) postImageInput.value = "";
+
+      const imageLabel = document.querySelector(".image-upload-label");
+      const imageLabelText = document.getElementById("image-label-text");
+
+      if (imageLabel) imageLabel.classList.remove("has-image");
+      if (imageLabelText)
+        imageLabelText.textContent = "Agregar imagen (opcional)";
     }
 
+    if (postImageInput) {
+      const imageLabel = document.querySelector(".image-upload-label");
+      const imageLabelText = document.getElementById("image-label-text");
+      const removeImageBtn = document.getElementById("remove-image-btn");
 
+      // Cuando se selecciona una imagen
+      postImageInput.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+
+        if (!file) {
+          resetImagePreview();
+          return;
+        }
+
+        // Validar tipo de archivo
+        const validTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/gif",
+        ];
+        if (!validTypes.includes(file.type)) {
+          alert("Solo se permiten imágenes (JPG, PNG, WebP, GIF)");
+          postImageInput.value = "";
+          resetImagePreview();
+          return;
+        }
+
+        // Validar tamaño (máximo 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          alert("La imagen no puede superar los 5MB");
+          postImageInput.value = "";
+          resetImagePreview();
+          return;
+        }
+
+        // Mostrar preview
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          previewImg.src = event.target.result;
+          previewWrap.style.display = "block";
+          imageLabel.classList.add("has-image");
+          imageLabelText.textContent = `📷 ${file.name}`;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Botón para remover imagen
+      if (removeImageBtn) {
+        removeImageBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          resetImagePreview();
+        });
+      }
+    }
 
     // --- LÓGICA DE VISTAS ---
     const loadPostsForCurrentView = async () => {
@@ -274,11 +360,23 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(currentView).classList.add("active");
       try {
         if (currentView === "my-posts-view") {
-          renderPosts(await fetchWithAuth(`${API_URL}/posts/me`), myPostsList, "no-posts-message");
+          renderPosts(
+            await fetchWithAuth(`${API_URL}/posts/me`),
+            myPostsList,
+            "no-posts-message"
+          );
         } else if (currentView === "commented-posts-view") {
-          renderPosts(await fetchWithAuth(`${API_URL}/user/commented-posts`), commentedPostsList, "no-commented-posts-message");
+          renderPosts(
+            await fetchWithAuth(`${API_URL}/user/commented-posts`),
+            commentedPostsList,
+            "no-commented-posts-message"
+          );
         } else if (currentView === "global-chat-view") {
-          renderPosts(await fetchWithAuth(`${API_URL}/posts`), globalChatList, "no-global-posts-message");
+          renderPosts(
+            await fetchWithAuth(`${API_URL}/posts`),
+            globalChatList,
+            "no-global-posts-message"
+          );
         }
       } catch (error) {
         alert(`No se pudieron cargar los posts: ${error.message}`);
@@ -294,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     );
 
-
+    // --- ENVIAR FORMULARIO CON IMAGEN ---
     postForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -308,76 +406,94 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        let newPost;
-
+        const formData = new FormData();
+        formData.append("titulo", titulo);
+        formData.append("contenido", contenido);
 
         if (file) {
-          const formData = new FormData();
-          formData.append("titulo", titulo);
-          formData.append("contenido", contenido);
           formData.append("image", file);
-
-          newPost = await fetchWithAuth(`${API_URL}/posts`, {
-            method: "POST",
-            body: formData,
-          });
-        } else {
-
-          newPost = await fetchWithAuth(`${API_URL}/posts`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ titulo, contenido }),
-          });
+          console.log("📷 Adjuntando imagen:", file.name);
         }
 
+        // Enviar con FormData (sin Content-Type header)
+        const response = await fetch(`${API_URL}/posts`, {
+          method: "POST",
+          headers: {
+            ...(AUTH_TOKEN ? { Authorization: `Bearer ${AUTH_TOKEN}` } : {}),
+          },
+          body: formData,
+        });
 
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Error HTTP: ${response.status}`);
+        }
+
+        const newPost = await response.json();
+
+        console.log("✅ Post creado:", newPost);
+
+        // Actualizar UI
         updateOrAddPostInDOM(newPost);
 
-
+        // Resetear formulario
         postForm.reset();
-        if (document.getElementById("image-preview-wrap")) {
-          document.getElementById("image-preview-wrap").style.display = "none";
-        }
+        resetImagePreview();
+
+        alert("¡Post publicado exitosamente!");
       } catch (error) {
-        console.error("Error al crear el post:", error);
-        alert("No se pudo publicar el post. Intenta nuevamente.");
+        console.error("❌ Error al crear el post:", error);
+        alert(`No se pudo publicar el post: ${error.message}`);
       }
     });
 
-
-
-
-
     document.body.addEventListener("click", async (e) => {
       const deleteBtn = e.target.closest(".delete-btn");
-      if (deleteBtn && confirm("¿Estás seguro de que quieres eliminar esta publicación?")) {
+      if (
+        deleteBtn &&
+        confirm("¿Estás seguro de que quieres eliminar esta publicación?")
+      ) {
         try {
-          await fetchWithAuth(`${API_URL}/posts/${deleteBtn.dataset.id}`, { method: "DELETE" });
+          await fetchWithAuth(`${API_URL}/posts/${deleteBtn.dataset.id}`, {
+            method: "DELETE",
+          });
         } catch (error) {
           alert(`No se pudo eliminar el post: ${error.message}`);
         }
       }
+
       const editBtn = e.target.closest(".edit-btn");
       if (editBtn) {
         const postCard = editBtn.closest(".post-card");
         postToEditId = postCard.dataset.postId;
-        editTextarea.value = postCard.querySelector(".post-content p").innerHTML.replace(/<br\s*\/?>/gi, "\n");
+        editTextarea.value = postCard
+          .querySelector(".post-content p")
+          .innerHTML.replace(/<br\s*\/?>/gi, "\n");
         editModal.classList.add("visible");
       }
 
       const commentDeleteBtn = e.target.closest(".comment-delete-btn");
-      if (commentDeleteBtn && confirm("¿Estás seguro de que quieres eliminar este comentario?")) {
+      if (
+        commentDeleteBtn &&
+        confirm("¿Estás seguro de que quieres eliminar este comentario?")
+      ) {
         try {
-          await fetchWithAuth(`${API_URL}/comments/${commentDeleteBtn.dataset.id}`, { method: "DELETE" });
+          await fetchWithAuth(
+            `${API_URL}/comments/${commentDeleteBtn.dataset.id}`,
+            { method: "DELETE" }
+          );
         } catch (error) {
           alert(`No se pudo eliminar el comentario: ${error.message}`);
         }
       }
+
       const commentEditBtn = e.target.closest(".comment-edit-btn");
       if (commentEditBtn) {
         const commentCard = commentEditBtn.closest(".comment-card");
         commentToEditId = commentCard.dataset.commentId;
-        commentEditTextarea.value = commentCard.querySelector(".comment-content").innerHTML.replace(/<br\s*\/?>/gi, "\n");
+        commentEditTextarea.value = commentCard
+          .querySelector(".comment-content")
+          .innerHTML.replace(/<br\s*\/?>/gi, "\n");
         commentEditModal.classList.add("visible");
       }
     });
@@ -394,18 +510,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const postId = form.closest(".post-card").dataset.postId;
 
       try {
-        const newComment = await fetchWithAuth(`${API_URL}/posts/${postId}/comments`, {
-          method: "POST",
-          body: JSON.stringify({ contenido }),
-        });
-
+        const newComment = await fetchWithAuth(
+          `${API_URL}/posts/${postId}/comments`,
+          {
+            method: "POST",
+            body: JSON.stringify({ contenido }),
+          }
+        );
 
         const html = createCommentHTML(newComment);
-        const cards = document.querySelectorAll(`.post-card[data-post-id='${postId}']`);
-        cards.forEach(card => {
+        const cards = document.querySelectorAll(
+          `.post-card[data-post-id='${postId}']`
+        );
+        cards.forEach((card) => {
           const list = card.querySelector(".comments-list");
-          // evita duplicado si justo llega el socket antes 
-          if (!card.querySelector(`.comment-card[data-comment-id='${newComment.comment_id}']`)) {
+          if (
+            !card.querySelector(
+              `.comment-card[data-comment-id='${newComment.comment_id}']`
+            )
+          ) {
             list?.insertAdjacentHTML("beforeend", html);
           }
         });
@@ -416,13 +539,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-
-
     const performSearch = async () => {
       const query = searchInput.value.trim();
-      if (query.length < 2) return alert("La búsqueda debe tener al menos 2 caracteres.");
+      if (query.length < 2)
+        return alert("La búsqueda debe tener al menos 2 caracteres.");
       try {
-        const results = await fetchWithAuth(`${API_URL}/user/search?q=${encodeURIComponent(query)}`);
+        const results = await fetchWithAuth(
+          `${API_URL}/user/search?q=${encodeURIComponent(query)}`
+        );
         renderPosts(results, searchResultsList, "no-search-results-message");
         searchResultsTitle.textContent = `Resultados para "${query}"`;
         document.getElementById("view-search-results").checked = true;
@@ -453,7 +577,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Modales
-    cancelEditBtn.addEventListener("click", () => editModal.classList.remove("visible"));
+    cancelEditBtn.addEventListener("click", () =>
+      editModal.classList.remove("visible")
+    );
     saveEditBtn.addEventListener("click", async () => {
       const contenido = editTextarea.value.trim();
       if (!contenido || !postToEditId) return;
@@ -468,7 +594,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    commentCancelEditBtn.addEventListener("click", () => commentEditModal.classList.remove("visible"));
+    commentCancelEditBtn.addEventListener("click", () =>
+      commentEditModal.classList.remove("visible")
+    );
     commentSaveEditBtn.addEventListener("click", async () => {
       const contenido = commentEditTextarea.value.trim();
       if (!contenido || !commentToEditId) return;
@@ -489,27 +617,38 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("config-email").value = LOGGED_IN_USER.email;
       configModal.classList.add("visible");
     });
-    cancelConfigBtn.addEventListener("click", () => configModal.classList.remove("visible"));
+    cancelConfigBtn.addEventListener("click", () =>
+      configModal.classList.remove("visible")
+    );
 
     configForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const nombre = document.getElementById("config-name").value.trim();
       const email = document.getElementById("config-email").value.trim();
-      const contraseñaActual = document.getElementById("config-current-password").value;
-      const contraseñaNueva = document.getElementById("config-new-password").value;
+      const contraseñaActual = document.getElementById(
+        "config-current-password"
+      ).value;
+      const contraseñaNueva = document.getElementById(
+        "config-new-password"
+      ).value;
       let body = { nombre, email, contraseñaActual };
       if (contraseñaNueva) body.contraseñaNueva = contraseñaNueva;
 
       try {
-        const { message, user } = await fetchWithAuth(`${API_URL}/user/profile`, {
-          method: "PUT",
-          body: JSON.stringify(body),
-        });
+        const { message, user } = await fetchWithAuth(
+          `${API_URL}/user/profile`,
+          {
+            method: "PUT",
+            body: JSON.stringify(body),
+          }
+        );
         alert(message);
         LOGGED_IN_USER = { ...LOGGED_IN_USER, ...user };
         localStorage.setItem("loggedInUser", JSON.stringify(LOGGED_IN_USER));
         userNameDisplay.textContent = LOGGED_IN_USER.nombre;
-        userAvatarDisplay.textContent = LOGGED_IN_USER.nombre.substring(0, 1).toUpperCase();
+        userAvatarDisplay.textContent = LOGGED_IN_USER.nombre
+          .substring(0, 1)
+          .toUpperCase();
         configModal.classList.remove("visible");
       } catch (error) {
         alert(`Error al actualizar el perfil: ${error.message}`);
@@ -517,7 +656,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     deleteAccountBtn.addEventListener("click", async () => {
-      const password = prompt("Para eliminar tu cuenta, ingresa tu contraseña. ESTA ACCIÓN ES IRREVERSIBLE.");
+      const password = prompt(
+        "Para eliminar tu cuenta, ingresa tu contraseña. ESTA ACCIÓN ES IRREVERSIBLE."
+      );
       if (password) {
         try {
           const { message } = await fetchWithAuth(`${API_URL}/user/account`, {
@@ -537,36 +678,57 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- SOCKET.IO ---
     const updateOrAddPostInDOM = (postData) => {
       const newCardHTML = createPostCardHTML(postData);
-      const existingCard = document.querySelector(`.post-card[data-post-id='${postData.post_id}']`);
+      const existingCard = document.querySelector(
+        `.post-card[data-post-id='${postData.post_id}']`
+      );
       if (existingCard) {
         existingCard.outerHTML = newCardHTML;
       } else {
-        ["my-posts-list", "global-chat-list", "commented-posts-list", "search-results-list"].forEach((id) => {
-          document.getElementById(id)?.insertAdjacentHTML("afterbegin", newCardHTML);
+        [
+          "my-posts-list",
+          "global-chat-list",
+          "commented-posts-list",
+          "search-results-list",
+        ].forEach((id) => {
+          document
+            .getElementById(id)
+            ?.insertAdjacentHTML("afterbegin", newCardHTML);
         });
       }
     };
 
     socket.on("new_post", (newPost) => updateOrAddPostInDOM(newPost));
-    socket.on("post_updated", (updatedPost) => updateOrAddPostInDOM(updatedPost));
+    socket.on("post_updated", (updatedPost) =>
+      updateOrAddPostInDOM(updatedPost)
+    );
     socket.on("post_deleted", ({ postId }) =>
       document.querySelector(`.post-card[data-post-id='${postId}']`)?.remove()
     );
 
     socket.on("new_comment", (newComment) => {
-      const postCards = document.querySelectorAll(`.post-card[data-post-id='${newComment.post_id}']`);
+      const postCards = document.querySelectorAll(
+        `.post-card[data-post-id='${newComment.post_id}']`
+      );
       postCards.forEach((card) => {
-        card.querySelector(".comments-list")?.insertAdjacentHTML("beforeend", createCommentHTML(newComment));
+        card
+          .querySelector(".comments-list")
+          ?.insertAdjacentHTML("beforeend", createCommentHTML(newComment));
       });
     });
 
     socket.on("comment_updated", (updatedComment) => {
-      const commentCards = document.querySelectorAll(`.comment-card[data-comment-id='${updatedComment.comment_id}']`);
-      commentCards.forEach((card) => (card.outerHTML = createCommentHTML(updatedComment)));
+      const commentCards = document.querySelectorAll(
+        `.comment-card[data-comment-id='${updatedComment.comment_id}']`
+      );
+      commentCards.forEach(
+        (card) => (card.outerHTML = createCommentHTML(updatedComment))
+      );
     });
 
     socket.on("comment_deleted", ({ comment_id }) => {
-      const commentCards = document.querySelectorAll(`.comment-card[data-comment-id='${comment_id}']`);
+      const commentCards = document.querySelectorAll(
+        `.comment-card[data-comment-id='${comment_id}']`
+      );
       commentCards.forEach((card) => card.remove());
     });
 
@@ -574,5 +736,5 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeDashboard();
   };
 
-  start().catch(() => { });
+  start().catch(() => {});
 });

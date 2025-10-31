@@ -21,7 +21,6 @@
           <span class="user-name"></span>
         </div>
         <div class="header-actions">
-          <!-- NUEVO: Botón para ir a página de amigos -->
           <a href="friends.html" class="friends-btn">👥 Amigos</a>
           <button class="config-btn">⚙️ Configuración</button>
           <button class="logout-btn">Cerrar Sesión</button>
@@ -78,19 +77,60 @@
               required
             ></textarea>
 
-            <div
-              id="image-preview-wrap"
-              style="display: none; margin-top: 10px"
-            >
-              <img id="image-preview" alt="Vista previa" />
-            </div>
+            <!-- Sección de imagen mejorada -->
+            <div class="image-upload-section">
+              <label for="post-image" class="image-upload-label">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span id="image-label-text">Agregar imagen (opcional)</span>
+              </label>
+              <input
+                type="file"
+                id="post-image"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                style="display: none"
+              />
 
-            <input
-              type="file"
-              id="post-image"
-              accept="image/*"
-              style="margin-top: 10px"
-            />
+              <!-- Preview de la imagen -->
+              <div id="image-preview-wrap" style="display: none">
+                <div class="image-preview-container">
+                  <img id="image-preview" alt="Vista previa" />
+                  <button
+                    type="button"
+                    id="remove-image-btn"
+                    class="remove-image-btn"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
 
             <button type="submit" id="post-submit-btn">Publicar</button>
           </form>

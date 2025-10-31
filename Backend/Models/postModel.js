@@ -115,7 +115,7 @@ class PostModel {
   }
 
   /**
-   * Actualiza una publicación - ✅ CON LOGS
+   * Actualiza una publicación
    */
   async update(postId, userId, contenido) {
     console.log("🔍 Intentando actualizar post:", {
@@ -168,7 +168,7 @@ class PostModel {
   }
 
   /**
-   * Elimina una publicación - ✅ CON LOGS
+   * Elimina una publicación
    */
   async remove(postId, userId) {
     console.log("🗑️ Intentando eliminar post:", { postId, userId });

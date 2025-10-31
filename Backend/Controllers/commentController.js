@@ -8,7 +8,7 @@ const commentModel = require("../Models/commentModel");
  * Actualiza un comentario existente.
  */
 exports.updateComment = async (req, res) => {
-  const commentId = req.params.commentId; // ✅ Ya no parseInt
+  const commentId = req.params.commentId;
   const userId = req.userId;
   const { contenido } = req.body;
 
@@ -51,7 +51,7 @@ exports.updateComment = async (req, res) => {
  * Elimina un comentario.
  */
 exports.deleteComment = async (req, res) => {
-  const commentId = req.params.commentId; // ✅ Ya no parseInt
+  const commentId = req.params.commentId;
   const userId = req.userId;
 
   if (!commentId || typeof commentId !== "string") {

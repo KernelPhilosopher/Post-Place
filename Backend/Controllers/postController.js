@@ -1,25 +1,33 @@
 // =============================================================================
-// Controlador de Posts - CORREGIDO PARA UUIDs
+// Controlador de Posts - CON MANEJO CORRECTO DE IMÁGENES
 // =============================================================================
 
 const postModel = require("../Models/postModel");
 const commentModel = require("../Models/commentModel");
 
 /**
- * Crea una nueva publicación
+ * Crea una nueva publicación con imagen opcional
  */
 exports.createPost = async (req, res) => {
   const userId = req.userId;
   const { titulo, contenido } = req.body;
 
+  console.log("📝 Creando post:", { userId, titulo, hasImage: !!req.file });
+
   if (!titulo?.trim() || !contenido?.trim()) {
-    return res
-      .status(400)
-      .json({ error: "El título y el contenido no pueden estar vacíos." });
+    return res.status(400).json({
+      error: "El título y el contenido no pueden estar vacíos.",
+    });
   }
 
   try {
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    // ✅ Construir URL de imagen si existe
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`;
+      console.log("📷 Imagen guardada:", imageUrl);
+    }
+
     const newPost = await postModel.create(
       userId,
       titulo.trim(),
@@ -27,16 +35,20 @@ exports.createPost = async (req, res) => {
       imageUrl
     );
 
+    console.log("✅ Post creado exitosamente:", newPost.post_id);
+
+    // Emitir evento de Socket.IO
     req.app.get("io")?.emit("new_post", newPost);
+
     res.status(201).json(newPost);
   } catch (error) {
-    console.error("Error en createPost:", error);
+    console.error("❌ Error en createPost:", error);
     res.status(500).json({ error: "Error interno del servidor." });
   }
 };
 
 /**
- * Crea un nuevo comentario
+ * Crea un nuevo comentario (solo texto)
  */
 exports.createComment = async (req, res) => {
   try {
@@ -97,10 +109,10 @@ exports.getUserPosts = async (req, res) => {
 };
 
 /**
- * Actualiza una publicación - ✅ CORREGIDO
+ * Actualiza una publicación
  */
 exports.updatePost = async (req, res) => {
-  const postId = req.params.id; // ✅ Ya no parseInt
+  const postId = req.params.id;
   const userId = req.userId;
   const { contenido } = req.body;
 
@@ -140,10 +152,10 @@ exports.updatePost = async (req, res) => {
 };
 
 /**
- * Elimina una publicación - ✅ CORREGIDO
+ * Elimina una publicación
  */
 exports.deletePost = async (req, res) => {
-  const postId = req.params.id; // ✅ Ya no parseInt
+  const postId = req.params.id;
   const userId = req.userId;
 
   if (!postId || typeof postId !== "string") {

@@ -10,7 +10,7 @@ const authRoutes = require("./Routes/authRoutes");
 const postRoutes = require("./Routes/postRoutes");
 const userRoutes = require("./Routes/userRoutes");
 const commentRoutes = require("./Routes/commentRoutes");
-const friendshipRoutes = require("./Routes/friendshipRoutes"); // NUEVO
+const friendshipRoutes = require("./Routes/friendshipRoutes");
 const initializeSocketManager = require("./Sockets/socketsManager");
 const { closeDriver } = require("./Config/database");
 
@@ -64,7 +64,10 @@ if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
   console.log("📁 Carpeta 'uploads' creada");
 }
+
+// ✅ Servir archivos estáticos de uploads
 app.use("/uploads", express.static(uploadsPath));
+console.log("📂 Carpeta uploads servida en /uploads");
 
 // =============================================================================
 // SERVIR FRONTEND ESTÁTICO
@@ -82,7 +85,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/comments", commentRoutes);
-app.use("/api/friends", friendshipRoutes); // NUEVO: Rutas de amistad
+app.use("/api/friends", friendshipRoutes);
 
 // =============================================================================
 // HEALTH CHECK
@@ -147,6 +150,7 @@ server.listen(PORT, "0.0.0.0", () => {
     }`
   );
   console.log(`🌍 Entorno:       ${process.env.NODE_ENV || "development"}`);
+  console.log(`💾 Uploads:       ✅ /uploads habilitado`);
   console.log(`👥 Sistema de Amistad: ✅ Habilitado`);
   console.log("=".repeat(60));
 });
