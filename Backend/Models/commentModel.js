@@ -1,16 +1,16 @@
 // =============================================================================
-// Modelo de Comentario - CORREGIDO PARA NEO4J
+// Modelo de Comentario - CON LOGS PARA DEBUG
 // =============================================================================
 
 const { runQuery, runTransaction } = require("../Config/database");
 
 class CommentModel {
   /**
-   * Crea un nuevo comentario - CORREGIDO: randomuuid()
+   * Crea un nuevo comentario
    */
   async create(postId, userId, contenido) {
     return await runTransaction(async (tx) => {
-      // Primero verificar que el post existe
+      // Verificar que el post existe
       const checkPost = await tx.run(
         "MATCH (p:Post {post_id: $postId}) RETURN p",
         { postId }
@@ -48,10 +48,15 @@ class CommentModel {
   }
 
   /**
-   * Actualiza un comentario existente.
-   * SOLO el autor del comentario puede actualizarlo.
+   * Actualiza un comentario existente - ✅ CON LOGS
    */
   async update(commentId, userId, contenido) {
+    console.log("🔍 Intentando actualizar comentario:", {
+      commentId,
+      userId,
+      contenido,
+    });
+
     return await runTransaction(async (tx) => {
       const query = `
         MATCH (u:Usuario {user_id: $userId})-[:COMENTO]->(c:Comentario {comment_id: $commentId})
@@ -66,15 +71,25 @@ class CommentModel {
       `;
 
       const result = await tx.run(query, { commentId, userId, contenido });
+
+      console.log("✅ Resultado de actualización:", result.records.length);
+
+      if (result.records.length === 0) {
+        console.log(
+          "⚠️ No se encontró el comentario o no pertenece al usuario"
+        );
+      }
+
       return result.records.length > 0 ? result.records[0].toObject() : null;
     });
   }
 
   /**
-   * Elimina un comentario.
-   * SOLO el autor del comentario puede eliminarlo.
+   * Elimina un comentario - ✅ CON LOGS
    */
   async remove(commentId, userId) {
+    console.log("🗑️ Intentando eliminar comentario:", { commentId, userId });
+
     return await runTransaction(async (tx) => {
       const query = `
         MATCH (u:Usuario {user_id: $userId})-[:COMENTO]->(c:Comentario {comment_id: $commentId})
@@ -85,6 +100,9 @@ class CommentModel {
       `;
 
       const result = await tx.run(query, { commentId, userId });
+
+      console.log("✅ Resultado de eliminación:", result.records.length);
+
       return result.records.length > 0 ? result.records[0].toObject() : null;
     });
   }

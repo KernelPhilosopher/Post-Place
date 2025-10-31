@@ -1,20 +1,9 @@
 // =============================================================================
-// Controlador de Posts - con soporte de imágenes (local o nube)
+// Controlador de Posts - CORREGIDO PARA UUIDs
 // =============================================================================
 
 const postModel = require("../Models/postModel");
 const commentModel = require("../Models/commentModel");
-
-
-const buildImageUrl = (req, filename) => {
-  if (!filename) return null;
-  // En local (dev): /uploads/...
-  if (process.env.NODE_ENV !== "production") {
-    return `/uploads/${filename}`;
-  }
-
-  return filename;
-};
 
 /**
  * Crea una nueva publicación
@@ -24,14 +13,21 @@ exports.createPost = async (req, res) => {
   const { titulo, contenido } = req.body;
 
   if (!titulo?.trim() || !contenido?.trim()) {
-    return res.status(400).json({ error: "El título y el contenido no pueden estar vacíos." });
+    return res
+      .status(400)
+      .json({ error: "El título y el contenido no pueden estar vacíos." });
   }
 
   try {
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null; // 👈 opcional
-    const newPost = await postModel.create(userId, titulo.trim(), contenido.trim(), imageUrl);
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const newPost = await postModel.create(
+      userId,
+      titulo.trim(),
+      contenido.trim(),
+      imageUrl
+    );
 
-    req.app.get("io")?.emit("new_post", newPost); // realtime
+    req.app.get("io")?.emit("new_post", newPost);
     res.status(201).json(newPost);
   } catch (error) {
     console.error("Error en createPost:", error);
@@ -39,25 +35,26 @@ exports.createPost = async (req, res) => {
   }
 };
 
-
 /**
- * Crea un nuevo comentario (solo texto)
+ * Crea un nuevo comentario
  */
 exports.createComment = async (req, res) => {
   try {
     const userId = req.userId;
     const postId = (req.params.postId ?? "").toString().trim();
-    if (!postId)
+
+    if (!postId) {
       return res.status(400).json({ error: "ID de post inválido." });
+    }
 
     const contenido = (req.body?.contenido ?? "").toString().trim();
-    if (!contenido)
+    if (!contenido) {
       return res
         .status(400)
         .json({ error: "El contenido del comentario no puede estar vacío." });
+    }
 
-    // null porque los comentarios no tienen imagen
-    const newComment = await commentModel.create(postId, userId, contenido, null);
+    const newComment = await commentModel.create(postId, userId, contenido);
 
     const io = req.app.get("io");
     if (io) io.emit("new_comment", newComment);
@@ -100,10 +97,10 @@ exports.getUserPosts = async (req, res) => {
 };
 
 /**
- * Actualiza una publicación
+ * Actualiza una publicación - ✅ CORREGIDO
  */
 exports.updatePost = async (req, res) => {
-  const postId = parseInt(req.params.id);
+  const postId = req.params.id; // ✅ Ya no parseInt
   const userId = req.userId;
   const { contenido } = req.body;
 
@@ -113,7 +110,7 @@ exports.updatePost = async (req, res) => {
     });
   }
 
-  if (isNaN(postId) || postId <= 0) {
+  if (!postId || typeof postId !== "string") {
     return res.status(400).json({
       error: "ID de post inválido.",
     });
@@ -143,13 +140,13 @@ exports.updatePost = async (req, res) => {
 };
 
 /**
- * Elimina una publicación
+ * Elimina una publicación - ✅ CORREGIDO
  */
 exports.deletePost = async (req, res) => {
-  const postId = parseInt(req.params.id);
+  const postId = req.params.id; // ✅ Ya no parseInt
   const userId = req.userId;
 
-  if (isNaN(postId) || postId <= 0) {
+  if (!postId || typeof postId !== "string") {
     return res.status(400).json({
       error: "ID de post inválido.",
     });

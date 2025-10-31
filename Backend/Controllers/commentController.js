@@ -1,5 +1,5 @@
 // =============================================================================
-// Controlador de Comentarios - NUEVO
+// Controlador de Comentarios - CORREGIDO PARA UUIDs
 // =============================================================================
 
 const commentModel = require("../Models/commentModel");
@@ -8,7 +8,7 @@ const commentModel = require("../Models/commentModel");
  * Actualiza un comentario existente.
  */
 exports.updateComment = async (req, res) => {
-  const commentId = parseInt(req.params.commentId);
+  const commentId = req.params.commentId; // ✅ Ya no parseInt
   const userId = req.userId;
   const { contenido } = req.body;
 
@@ -18,7 +18,7 @@ exports.updateComment = async (req, res) => {
       .json({ error: "El contenido del comentario no puede estar vacío." });
   }
 
-  if (isNaN(commentId) || commentId <= 0) {
+  if (!commentId || typeof commentId !== "string") {
     return res.status(400).json({ error: "ID de comentario inválido." });
   }
 
@@ -51,10 +51,10 @@ exports.updateComment = async (req, res) => {
  * Elimina un comentario.
  */
 exports.deleteComment = async (req, res) => {
-  const commentId = parseInt(req.params.commentId);
+  const commentId = req.params.commentId; // ✅ Ya no parseInt
   const userId = req.userId;
 
-  if (isNaN(commentId) || commentId <= 0) {
+  if (!commentId || typeof commentId !== "string") {
     return res.status(400).json({ error: "ID de comentario inválido." });
   }
 

@@ -1,12 +1,12 @@
 // =============================================================================
-// Modelo de Publicación - CORREGIDO PARA NEO4J (CON IMÁGENES)
+// Modelo de Publicación - CON LOGS PARA DEBUG
 // =============================================================================
 
 const { runQuery, runTransaction } = require("../Config/database");
 
 class PostModel {
   /**
-   * Crea una nueva publicación (con imagen opcional) - CORREGIDO: randomuuid()
+   * Crea una nueva publicación
    */
   async create(userId, titulo, contenido, imageUrl = null) {
     return await runTransaction(async (tx) => {
@@ -37,6 +37,7 @@ class PostModel {
         contenido,
         imageUrl,
       });
+
       if (result.records.length === 0) return null;
 
       const post = result.records[0].toObject();
@@ -46,7 +47,7 @@ class PostModel {
   }
 
   /**
-   * Obtiene todas las publicaciones con comentarios (incluye imágenes)
+   * Obtiene todas las publicaciones con comentarios
    */
   async findAll() {
     const query = `
@@ -80,7 +81,7 @@ class PostModel {
   }
 
   /**
-   * Obtiene publicaciones de un usuario específico (con imágenes)
+   * Obtiene publicaciones de un usuario específico
    */
   async findByUserId(userId) {
     const query = `
@@ -114,9 +115,15 @@ class PostModel {
   }
 
   /**
-   * Actualiza una publicación
+   * Actualiza una publicación - ✅ CON LOGS
    */
   async update(postId, userId, contenido) {
+    console.log("🔍 Intentando actualizar post:", {
+      postId,
+      userId,
+      contenido,
+    });
+
     return await runTransaction(async (tx) => {
       const query = `
         MATCH (u:Usuario {user_id: $userId})-[:CREO]->(p:Post {post_id: $postId})
@@ -143,7 +150,16 @@ class PostModel {
       `;
 
       const result = await tx.run(query, { postId, userId, contenido });
-      if (result.records.length === 0) return null;
+
+      console.log(
+        "✅ Resultado de actualización de post:",
+        result.records.length
+      );
+
+      if (result.records.length === 0) {
+        console.log("⚠️ No se encontró el post o no pertenece al usuario");
+        return null;
+      }
 
       const post = result.records[0].toObject();
       post.comments = post.comments.filter((c) => c.comment_id !== null);
@@ -152,9 +168,11 @@ class PostModel {
   }
 
   /**
-   * Elimina una publicación
+   * Elimina una publicación - ✅ CON LOGS
    */
   async remove(postId, userId) {
+    console.log("🗑️ Intentando eliminar post:", { postId, userId });
+
     return await runTransaction(async (tx) => {
       const query = `
         MATCH (u:Usuario {user_id: $userId})-[:CREO]->(p:Post {post_id: $postId})
@@ -164,6 +182,12 @@ class PostModel {
       `;
 
       const result = await tx.run(query, { postId, userId });
+
+      console.log(
+        "✅ Resultado de eliminación de post:",
+        result.records.length
+      );
+
       return result.records.length > 0
         ? result.records[0].get("post_id")
         : null;
