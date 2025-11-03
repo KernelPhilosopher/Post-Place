@@ -11,6 +11,8 @@ const postRoutes = require("./Routes/postRoutes");
 const userRoutes = require("./Routes/userRoutes");
 const commentRoutes = require("./Routes/commentRoutes");
 const friendshipRoutes = require("./Routes/friendshipRoutes");
+const groupRoutes = require("./Routes/groupRoutes"); // ✅ NUEVO
+const interestRoutes = require("./Routes/interestRoutes"); // ✅ NUEVO
 const initializeSocketManager = require("./Sockets/socketsManager");
 const { closeDriver } = require("./Config/database");
 
@@ -86,6 +88,8 @@ app.use("/api/posts", postRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/friends", friendshipRoutes);
+app.use("/api/groups", groupRoutes); // ✅ NUEVO
+app.use("/api/interests", interestRoutes); // ✅ NUEVO
 
 // =============================================================================
 // HEALTH CHECK
@@ -152,6 +156,8 @@ server.listen(PORT, "0.0.0.0", () => {
   console.log(`🌍 Entorno:       ${process.env.NODE_ENV || "development"}`);
   console.log(`💾 Uploads:       ✅ /uploads habilitado`);
   console.log(`👥 Sistema de Amistad: ✅ Habilitado`);
+  console.log(`🏘️  Sistema de Grupos: ✅ Habilitado`); // ✅ NUEVO
+  console.log(`🎯 Sistema de Intereses: ✅ Habilitado`); // ✅ NUEVO
   console.log("=".repeat(60));
 });
 

@@ -1,5 +1,5 @@
 // =============================================================================
-// Script de Inicialización de Base de Datos Neo4j - CON SISTEMA DE AMISTAD
+// Script de Inicialización de Base de Datos Neo4j - CON GRUPOS E INTERESES
 // =============================================================================
 
 const { runQuery, closeDriver } = require("./Config/database");
@@ -40,7 +40,30 @@ async function initializeDatabase() {
     `);
     console.log("✅ Constraint de comment_id creado\n");
 
-    // 5. Crear índice para búsquedas en Post.titulo
+    // =========================================================================
+    // NUEVOS: CONSTRAINTS PARA GRUPOS E INTERESES
+    // =========================================================================
+
+    // 5. Crear constraint de unicidad para Grupo.group_id
+    console.log("🔒 Creando constraint para Grupo.group_id...");
+    await runQuery(`
+      CREATE CONSTRAINT grupo_id_unique IF NOT EXISTS
+      FOR (g:Grupo) REQUIRE g.group_id IS UNIQUE
+    `);
+    console.log("✅ Constraint de group_id creado\n");
+
+    // 6. Crear constraint de unicidad para Interes.nombre
+    console.log("🔒 Creando constraint para Interes.nombre...");
+    await runQuery(`
+      CREATE CONSTRAINT interes_nombre_unique IF NOT EXISTS
+      FOR (i:Interes) REQUIRE i.nombre IS UNIQUE
+    `);
+    console.log("✅ Constraint de interes_nombre creado\n");
+
+    // =========================================================================
+    // ÍNDICES
+    // =========================================================================
+
     console.log("🔍 Creando índice para Post.titulo...");
     await runQuery(`
       CREATE INDEX post_titulo_index IF NOT EXISTS
@@ -48,7 +71,6 @@ async function initializeDatabase() {
     `);
     console.log("✅ Índice de titulo creado\n");
 
-    // 6. Crear índice para búsquedas en Post.contenido
     console.log("🔍 Creando índice para Post.contenido...");
     await runQuery(`
       CREATE INDEX post_contenido_index IF NOT EXISTS
@@ -56,7 +78,6 @@ async function initializeDatabase() {
     `);
     console.log("✅ Índice de contenido creado\n");
 
-    // 7. Crear índice para fecha_creacion de Post
     console.log("🔍 Creando índice para Post.fecha_creacion...");
     await runQuery(`
       CREATE INDEX post_fecha_index IF NOT EXISTS
@@ -64,7 +85,6 @@ async function initializeDatabase() {
     `);
     console.log("✅ Índice de fecha creado\n");
 
-    // 8. Crear índice para Usuario.nombre (para búsquedas)
     console.log("🔍 Creando índice para Usuario.nombre...");
     await runQuery(`
       CREATE INDEX usuario_nombre_index IF NOT EXISTS
@@ -72,25 +92,111 @@ async function initializeDatabase() {
     `);
     console.log("✅ Índice de nombre creado\n");
 
-    // =========================================================================
-    // NUEVO: ÍNDICES PARA SISTEMA DE AMISTAD
-    // =========================================================================
-
     console.log("👥 Creando índices para el sistema de amistad...");
-
-    // Índice para relaciones AMIGO_DE (optimiza búsqueda de amigos)
     await runQuery(`
       CREATE INDEX amigo_de_index IF NOT EXISTS
       FOR ()-[r:AMIGO_DE]-() ON (r.fecha_amistad)
     `);
     console.log("✅ Índice para relación AMIGO_DE creado\n");
 
-    // Índice para relaciones SOLICITUD_AMISTAD (optimiza búsqueda de solicitudes)
     await runQuery(`
       CREATE INDEX solicitud_amistad_index IF NOT EXISTS
       FOR ()-[r:SOLICITUD_AMISTAD]-() ON (r.fecha_solicitud)
     `);
     console.log("✅ Índice para relación SOLICITUD_AMISTAD creado\n");
+
+    // =========================================================================
+    // NUEVOS: ÍNDICES PARA GRUPOS E INTERESES
+    // =========================================================================
+
+    console.log("🏘️ Creando índice para Grupo.nombre...");
+    await runQuery(`
+      CREATE INDEX grupo_nombre_index IF NOT EXISTS
+      FOR (g:Grupo) ON (g.nombre)
+    `);
+    console.log("✅ Índice de nombre de grupo creado\n");
+
+    console.log("🎯 Creando índice para Interes.categoria...");
+    await runQuery(`
+      CREATE INDEX interes_categoria_index IF NOT EXISTS
+      FOR (i:Interes) ON (i.categoria)
+    `);
+    console.log("✅ Índice de categoria de interes creado\n");
+
+    // =========================================================================
+    // CREAR INTERESES PREDEFINIDOS
+    // =========================================================================
+
+    console.log("🎯 Creando intereses predefinidos...");
+
+    const interesesPredefinidos = [
+      // Deportes
+      { nombre: "Fútbol", categoria: "Deportes", emoji: "⚽" },
+      { nombre: "Baloncesto", categoria: "Deportes", emoji: "🏀" },
+      { nombre: "Tenis", categoria: "Deportes", emoji: "🎾" },
+      { nombre: "Natación", categoria: "Deportes", emoji: "🏊" },
+      { nombre: "Ciclismo", categoria: "Deportes", emoji: "🚴" },
+      { nombre: "Gimnasio", categoria: "Deportes", emoji: "💪" },
+
+      // Tecnología
+      { nombre: "Programación", categoria: "Tecnología", emoji: "💻" },
+      {
+        nombre: "Inteligencia Artificial",
+        categoria: "Tecnología",
+        emoji: "🤖",
+      },
+      { nombre: "Videojuegos", categoria: "Tecnología", emoji: "🎮" },
+      { nombre: "Ciberseguridad", categoria: "Tecnología", emoji: "🔐" },
+      { nombre: "Desarrollo Web", categoria: "Tecnología", emoji: "🌐" },
+
+      // Arte y Cultura
+      { nombre: "Música", categoria: "Arte y Cultura", emoji: "🎵" },
+      { nombre: "Cine", categoria: "Arte y Cultura", emoji: "🎬" },
+      { nombre: "Fotografía", categoria: "Arte y Cultura", emoji: "📷" },
+      { nombre: "Pintura", categoria: "Arte y Cultura", emoji: "🎨" },
+      { nombre: "Literatura", categoria: "Arte y Cultura", emoji: "📚" },
+      { nombre: "Teatro", categoria: "Arte y Cultura", emoji: "🎭" },
+
+      // Gastronomía
+      { nombre: "Cocina", categoria: "Gastronomía", emoji: "🍳" },
+      { nombre: "Repostería", categoria: "Gastronomía", emoji: "🧁" },
+      { nombre: "Café", categoria: "Gastronomía", emoji: "☕" },
+      { nombre: "Comida Saludable", categoria: "Gastronomía", emoji: "🥗" },
+
+      // Viajes
+      { nombre: "Viajes", categoria: "Viajes y Aventura", emoji: "✈️" },
+      { nombre: "Aventura", categoria: "Viajes y Aventura", emoji: "🏕️" },
+      { nombre: "Senderismo", categoria: "Viajes y Aventura", emoji: "🥾" },
+
+      // Ciencia
+      { nombre: "Astronomía", categoria: "Ciencia", emoji: "🔭" },
+      { nombre: "Biología", categoria: "Ciencia", emoji: "🧬" },
+      { nombre: "Física", categoria: "Ciencia", emoji: "⚛️" },
+
+      // Estilo de Vida
+      { nombre: "Yoga", categoria: "Estilo de Vida", emoji: "🧘" },
+      { nombre: "Meditación", categoria: "Estilo de Vida", emoji: "🕉️" },
+      { nombre: "Moda", categoria: "Estilo de Vida", emoji: "👗" },
+      { nombre: "Mascotas", categoria: "Estilo de Vida", emoji: "🐾" },
+      { nombre: "Jardinería", categoria: "Estilo de Vida", emoji: "🌱" },
+    ];
+
+    for (const interes of interesesPredefinidos) {
+      await runQuery(
+        `
+        MERGE (i:Interes {nombre: $nombre})
+        ON CREATE SET
+          i.categoria = $categoria,
+          i.emoji = $emoji,
+          i.fecha_creacion = datetime()
+      `,
+        interes
+      );
+    }
+
+    console.log(
+      `✅ ${interesesPredefinidos.length} intereses predefinidos creados\n`
+    );
 
     // Verificar constraints e índices creados
     console.log("🔍 Verificando constraints...");
@@ -109,38 +215,20 @@ async function initializeDatabase() {
     });
     console.log();
 
-    // Probar creación de un usuario de prueba (opcional)
-    console.log("🧪 Probando creación de nodo de prueba...");
-    const testResult = await runQuery(`
-      MERGE (u:Usuario {email: 'test@postplace.com'})
-      ON CREATE SET
-        u.user_id = randomuuid(),
-        u.nombre = 'Usuario de Prueba',
-        u.contraseña = 'hash_de_prueba',
-        u.fecha_creacion = datetime()
-      RETURN u.user_id as user_id, u.nombre as nombre
-    `);
-
-    if (testResult.length > 0) {
-      console.log(
-        "✅ Usuario de prueba creado/encontrado:",
-        testResult[0].toObject()
-      );
-    }
-    console.log();
-
     console.log("🎉 ¡Configuración de Neo4j completada exitosamente!\n");
     console.log("📊 Estructura de la base de datos:");
-    console.log("   - Nodos: Usuario, Post, Comentario");
-    console.log("   - Relaciones: [:CREO], [:COMENTO], [:EN_POST]");
-    console.log("   - Relaciones de Amistad: [:AMIGO_DE], [:SOLICITUD_AMISTAD]");
-    console.log("   - Constraints: 4 (unicidad de IDs y email)");
-    console.log("   - Índices: 6 (búsqueda, ordenamiento y relaciones)\n");
-    console.log("✅ La base de datos está lista para usar");
-    console.log("💡 Puedes eliminar el usuario de prueba ejecutando:");
+    console.log("   - Nodos: Usuario, Post, Comentario, Grupo, Interes");
+    console.log("   - Relaciones de Posts: [:CREO], [:COMENTO], [:EN_POST]");
     console.log(
-      "   MATCH (u:Usuario {email: 'test@postplace.com'}) DELETE u\n"
+      "   - Relaciones de Amistad: [:AMIGO_DE], [:SOLICITUD_AMISTAD]"
     );
+    console.log(
+      "   - Relaciones de Grupos: [:CREO_GRUPO], [:MIEMBRO_DE], [:ADMIN_DE]"
+    );
+    console.log("   - Relaciones de Intereses: [:INTERESADO_EN]");
+    console.log("   - Constraints: 6 (unicidad de IDs y nombres)");
+    console.log("   - Índices: 10+ (búsqueda, ordenamiento y relaciones)\n");
+    console.log("✅ La base de datos está lista para usar");
   } catch (error) {
     console.error("❌ Error durante la inicialización:", error);
     console.error("Detalles:", error.message);

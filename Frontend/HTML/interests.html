@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intereses | Post-Place</title>
+    <link rel="stylesheet" href="../CSS/interests.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="container">
+        <div class="user-info">
+          <div class="user-avatar"></div>
+          <span class="user-name"></span>
+        </div>
+        <div class="header-actions">
+          <a href="user-panel-global.html" class="back-btn">⬅️ Dashboard</a>
+          <a href="friends.html" class="friends-btn">👥 Amigos</a>
+          <a href="groups.html" class="groups-btn">🏘️ Grupos</a>
+          <button class="config-btn">⚙️ Configuración</button>
+          <button class="logout-btn">Cerrar Sesión</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <!-- Pestañas -->
+        <div class="tabs-switcher">
+          <input type="radio" id="tab-my-interests" name="tab" checked />
+          <label for="tab-my-interests">Mis Intereses</label>
+
+          <input type="radio" id="tab-all-interests" name="tab" />
+          <label for="tab-all-interests">Explorar Intereses</label>
+
+          <input type="radio" id="tab-recommendations" name="tab" />
+          <label for="tab-recommendations">Recomendaciones</label>
+        </div>
+
+        <!-- Vista: Mis Intereses -->
+        <section id="my-interests-tab" class="tab-content active">
+          <div class="section-header">
+            <h2>Mis Intereses</h2>
+            <div class="stats-badges">
+              <span class="badge" id="total-interests-badge">0 intereses</span>
+              <span class="badge" id="total-categories-badge"
+                >0 categorías</span
+              >
+            </div>
+          </div>
+
+          <div id="my-interests-list" class="interests-grid"></div>
+          <p
+            id="no-my-interests-message"
+            class="no-data-message"
+            style="display: none"
+          >
+            Aún no has seleccionado ningún interés. ¡Explora y añade algunos!
+          </p>
+        </section>
+
+        <!-- Vista: Explorar Intereses -->
+        <section id="all-interests-tab" class="tab-content">
+          <h2>Explorar Intereses</h2>
+          <p class="section-description">
+            Selecciona los temas que te interesan para personalizar tu
+            experiencia
+          </p>
+          <div id="all-interests-container"></div>
+        </section>
+
+        <!-- Vista: Recomendaciones -->
+        <section id="recommendations-tab" class="tab-content">
+          <h2>Recomendaciones de Amistad</h2>
+          <p class="section-description">
+            Usuarios con intereses similares a los tuyos
+          </p>
+          <div id="recommendations-list" class="recommendations-grid"></div>
+          <p
+            id="no-recommendations-message"
+            class="no-data-message"
+            style="display: none"
+          >
+            No hay recomendaciones disponibles. Añade más intereses para obtener
+            sugerencias.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <!-- Modal de Configuración (reutilizado) -->
+    <div id="config-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Configuración de Cuenta</h3>
+        <form id="config-form">
+          <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" id="config-name" />
+          </div>
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="config-email" />
+          </div>
+          <div class="form-group">
+            <label>Contraseña Actual:</label>
+            <input type="password" id="config-current-password" />
+          </div>
+          <div class="form-group">
+            <label>Nueva Contraseña:</label>
+            <input type="password" id="config-new-password" />
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              id="cancel-config-btn"
+              class="modal-btn cancel-btn"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="modal-btn save-btn">
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="../JS/config.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="../JS/interests.js"></script>
+  </body>
+</html>
