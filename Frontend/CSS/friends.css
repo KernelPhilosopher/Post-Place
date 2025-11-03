@@ -85,7 +85,10 @@ body {
   flex-wrap: wrap;
 }
 
+/* ESTILOS AÑADIDOS/ACTUALIZADOS */
 .back-btn,
+.groups-btn,
+.interests-btn,
 .config-btn,
 .logout-btn {
   background: none;
@@ -102,10 +105,13 @@ body {
   display: inline-block;
 }
 
-.back-btn:hover {
+.back-btn:hover,
+.groups-btn:hover,
+.interests-btn:hover {
   border-color: var(--color-text);
   color: var(--color-text);
 }
+/* FIN DE ESTILOS AÑADIDOS/ACTUALIZADOS */
 
 .config-btn:hover {
   border-color: var(--color-primary);

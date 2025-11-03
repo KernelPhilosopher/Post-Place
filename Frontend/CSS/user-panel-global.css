@@ -70,7 +70,10 @@ body {
   align-items: center;
 }
 
+/* ESTILOS AÑADIDOS PARA GRUPOS E INTERESES */
 .friends-btn,
+.groups-btn,
+.interests-btn,
 .config-btn,
 .logout-btn {
   background: none;
@@ -87,10 +90,13 @@ body {
   display: inline-block;
 }
 
-.friends-btn:hover {
+.friends-btn:hover,
+.groups-btn:hover,
+.interests-btn:hover {
   border-color: var(--color-text);
   color: var(--color-text);
 }
+/* FIN DE ESTILOS AÑADIDOS */
 
 .config-btn:hover {
   border-color: var(--color-primary);
@@ -771,7 +777,9 @@ main {
 
   .config-btn,
   .logout-btn,
-  .friends-btn {
+  .friends-btn,
+  .groups-btn,
+  .interests-btn {
     font-size: 0.8rem;
     padding: 6px 12px;
   }
